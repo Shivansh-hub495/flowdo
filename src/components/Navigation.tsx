@@ -62,13 +62,13 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ activeView, onVie
         <div className="flex items-center space-x-3">
           <div className="relative">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-600 flex items-center justify-center shadow-lg">
-              <Grid3X3 size={18} className="text-white" />
+              <img src="/logo.png" alt="FlowDo" className="w-6 h-6" />
             </div>
             <div className="absolute -inset-1 bg-gradient-to-br from-violet-500/20 to-purple-500/20 rounded-xl blur opacity-75"></div>
           </div>
           <div className="flex flex-col">
             <h2 className="text-xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-              Flow Matrix
+              FlowDo
             </h2>
             <p className="text-sm text-slate-400 font-medium">Productivity Hub</p>
           </div>
