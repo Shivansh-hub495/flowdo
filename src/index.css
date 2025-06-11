@@ -46,6 +46,16 @@
     --focus-glow: 263 70% 50%;
     --success: 142 76% 36%;
     --warning: 32 95% 44%;
+
+    /* Sidebar colors */
+    --sidebar: 240 10% 3.9%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 263 70% 50%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 263 70% 50%;
   }
 
   .light {
@@ -81,6 +91,16 @@
     --important: 263 70% 50%;
     --urgent: 32 95% 44%;
     --neither: 240 3.8% 46.1%;
+
+    /* Sidebar colors for light mode */
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 240 10% 3.9%;
+    --sidebar-primary: 263 70% 50%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 240 5.9% 90%;
+    --sidebar-ring: 263 70% 50%;
   }
 }
 
@@ -89,39 +109,247 @@
     @apply border-border;
   }
 
+  html {
+    font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Ensure all text elements use Montserrat */
+  h1, h2, h3, h4, h5, h6, p, span, div, button, input, textarea, label {
+    font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-white/10 backdrop-blur-md border border-white/20;
+    @apply bg-card/40 backdrop-blur-xl border border-border/30;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   }
-  
+
   .glow {
     box-shadow: 0 0 20px hsl(var(--focus-glow) / 0.3);
   }
-  
+
+  .soft-shadow {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .soft-shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .gradient-border {
+    position: relative;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(168, 85, 247, 0.3));
+    border-radius: inherit;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+  }
+
   .flip-card {
     perspective: 1000px;
   }
-  
+
   .flip-card-inner {
     transition: transform 0.6s;
     transform-style: preserve-3d;
   }
-  
+
   .flip-card.flipped .flip-card-inner {
     transform: rotateY(180deg);
   }
-  
+
   .flip-card-front, .flip-card-back {
     backface-visibility: hidden;
   }
-  
+
   .flip-card-back {
     transform: rotateY(180deg);
+  }
+
+  /* Enhanced animations for Focus Session */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  /* Improved focus ring for accessibility */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  /* Custom dark glowing scrollbar for sidebar */
+  .sidebar-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    border: none;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg,
+      rgba(139, 92, 246, 0.3) 0%,
+      rgba(139, 92, 246, 0.6) 50%,
+      rgba(139, 92, 246, 0.3) 100%
+    );
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
+    transition: all 0.3s ease;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg,
+      rgba(139, 92, 246, 0.5) 0%,
+      rgba(139, 92, 246, 0.8) 50%,
+      rgba(139, 92, 246, 0.5) 100%
+    );
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.6);
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* Firefox scrollbar styling */
+  .sidebar-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(139, 92, 246, 0.6) transparent;
+  }
+
+  /* Montserrat font utility class */
+  .font-montserrat {
+    font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /* Enhanced auth page animations */
+  .auth-card-enter {
+    animation: authCardEnter 0.8s ease-out;
+  }
+
+  @keyframes authCardEnter {
+    from {
+      opacity: 0;
+      transform: translateY(30px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Enhanced button hover effects */
+  .auth-button {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .auth-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+  }
+
+  .auth-button:hover::before {
+    left: 100%;
+  }
+
+  /* Google button specific styling */
+  .google-button {
+    background: white;
+    border: 1px solid #dadce0;
+    color: #3c4043;
+    transition: all 0.2s ease;
+  }
+
+  .google-button:hover {
+    background: #f8f9fa;
+    border-color: #c1c7cd;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Enhanced glass effect for auth cards */
+  .auth-glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  /* Gradient text animation */
+  .gradient-text {
+    background: linear-gradient(45deg, hsl(var(--primary)), hsl(var(--accent)));
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease infinite;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Line clamp utilities */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  /* Lab background styles for AI Chat */
+  .lab-bg::before {
+    overflow: hidden;
+    max-width: 100vw;
+    max-height: 100vh;
+    box-sizing: border-box;
   }
 }

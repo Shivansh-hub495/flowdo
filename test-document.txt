@@ -1,0 +1,19 @@
+This is a test document for the Vikram chatbot file upload feature.
+
+The document contains sample text that can be extracted and analyzed by the AI assistant.
+
+Key features being tested:
+1. File upload functionality
+2. Text extraction from documents
+3. AI analysis of document content
+4. Integration with the A4F API
+
+This text should be successfully extracted and made available to the chatbot for analysis and discussion.
+
+Sample data:
+- Project: FlowDo Productivity App
+- Feature: Enhanced Chatbot with File Upload
+- Technology: React, TypeScript, A4F API
+- Capabilities: Vision, Text Extraction, Web Search
+
+The chatbot should be able to read this content and answer questions about it.

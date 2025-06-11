@@ -1,11 +1,17 @@
 
 import React, { useState } from 'react';
-import Navigation from '@/components/Navigation';
+import SidebarNavigation from '@/components/Navigation';
 import TodayView from '@/components/TodayView';
 import EisenhowerMatrix from '@/components/EisenhowerMatrix';
+import TargetsView from '@/components/TargetsView';
 import NotesView from '@/components/NotesView';
 import PomodoroTimer from '@/components/PomodoroTimer';
+import HabitsView from '@/components/HabitsView';
 import StatsView from '@/components/StatsView';
+import AchievementsView from '@/components/AchievementsView';
+import ChatView from '@/components/ChatView';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import { Menu } from 'lucide-react';
 
 interface Task {
   id: string;
@@ -51,47 +57,59 @@ const Index = () => {
         return <TodayView onStartPomodoro={handleStartPomodoro} />;
       case 'matrix':
         return <EisenhowerMatrix onStartPomodoro={handleStartPomodoro} />;
+      case 'targets':
+        return <TargetsView />;
       case 'notes':
         return <NotesView />;
       case 'pomodoro':
         return (
-          <div className="min-h-screen flex items-center justify-center p-4">
-            <div className="text-center max-w-md">
-              <h2 className="text-2xl font-bold mb-4">Start a Focus Session</h2>
-              <p className="text-muted-foreground mb-6">
-                Select a task from your Matrix or Today view to begin a focused Pomodoro session.
-              </p>
-              <div className="space-y-3">
-                <button
-                  onClick={() => setActiveView('today')}
-                  className="w-full p-4 glass rounded-lg border hover:glow transition-all duration-200"
-                >
-                  <h3 className="font-medium mb-1">Go to Today</h3>
-                  <p className="text-sm text-muted-foreground">See today's prioritized tasks</p>
-                </button>
-                <button
-                  onClick={() => setActiveView('matrix')}
-                  className="w-full p-4 glass rounded-lg border hover:glow transition-all duration-200"
-                >
-                  <h3 className="font-medium mb-1">Go to Matrix</h3>
-                  <p className="text-sm text-muted-foreground">Choose from all your tasks</p>
-                </button>
-              </div>
-            </div>
-          </div>
+          <PomodoroTimer
+            selectedTask={null}
+            onComplete={() => {}}
+            onBack={() => setActiveView('today')}
+          />
         );
+      case 'habits':
+        return <HabitsView />;
       case 'stats':
         return <StatsView />;
+      case 'achievements':
+        return <AchievementsView />;
+      case 'chat':
+        return <ChatView />;
       default:
         return <TodayView onStartPomodoro={handleStartPomodoro} />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {renderActiveView()}
-      <Navigation activeView={activeView} onViewChange={setActiveView} />
-    </div>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <SidebarNavigation activeView={activeView} onViewChange={setActiveView} />
+        <SidebarInset className="flex-1">
+          {/* Hide header for chat and achievements pages */}
+          {activeView !== 'chat' && activeView !== 'achievements' && (
+            <header className="flex h-16 shrink-0 items-center gap-2 border-b border-white/10 px-4">
+              <SidebarTrigger className="md:hidden" />
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-semibold">
+                  {activeView === 'today' && 'Today'}
+                  {activeView === 'matrix' && 'Eisenhower Matrix'}
+                  {activeView === 'targets' && 'Future Targets'}
+                  {activeView === 'notes' && 'Mind Flow'}
+                  {activeView === 'pomodoro' && 'Focus Session'}
+                  {activeView === 'habits' && 'Habit Tracker'}
+                  {activeView === 'stats' && 'Progress Stats'}
+                </h1>
+              </div>
+            </header>
+          )}
+          <main className="flex-1">
+            {renderActiveView()}
+          </main>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 };
 

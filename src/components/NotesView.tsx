@@ -110,7 +110,7 @@ const NotesView: React.FC = () => {
   );
 
   return (
-    <div className="p-4 pb-20 min-h-screen">
+    <div className="p-6">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold mb-2 flex items-center justify-center">

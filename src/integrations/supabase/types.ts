@@ -9,7 +9,216 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      achievements: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string | null
+          image_url: string | null
+          achievement_date: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          description?: string | null
+          image_url?: string | null
+          achievement_date?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          description?: string | null
+          image_url?: string | null
+          achievement_date?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
+      habits: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string | null
+          color: string | null
+          target_frequency: number | null
+          frequency_type: 'daily' | 'weekly' | 'monthly' | null
+          created_at: string | null
+          updated_at: string | null
+          is_active: boolean | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          description?: string | null
+          color?: string | null
+          target_frequency?: number | null
+          frequency_type?: 'daily' | 'weekly' | 'monthly' | null
+          created_at?: string | null
+          updated_at?: string | null
+          is_active?: boolean | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          description?: string | null
+          color?: string | null
+          target_frequency?: number | null
+          frequency_type?: 'daily' | 'weekly' | 'monthly' | null
+          created_at?: string | null
+          updated_at?: string | null
+          is_active?: boolean | null
+        }
+      }
+      habit_logs: {
+        Row: {
+          id: string
+          habit_id: string
+          user_id: string
+          completed_at: string | null
+          log_date: string | null
+          notes: string | null
+        }
+        Insert: {
+          id?: string
+          habit_id: string
+          user_id: string
+          completed_at?: string | null
+          log_date?: string | null
+          notes?: string | null
+        }
+        Update: {
+          id?: string
+          habit_id?: string
+          user_id?: string
+          completed_at?: string | null
+          log_date?: string | null
+          notes?: string | null
+        }
+      }
+      pomodoro_sessions: {
+        Row: {
+          id: string
+          user_id: string
+          task_id: string | null
+          start_time: string
+          end_time: string | null
+          duration_minutes: number | null
+          session_type: 'focus' | 'break'
+          completed: boolean | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          task_id?: string | null
+          start_time: string
+          end_time?: string | null
+          duration_minutes?: number | null
+          session_type: 'focus' | 'break'
+          completed?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          task_id?: string | null
+          start_time?: string
+          end_time?: string | null
+          duration_minutes?: number | null
+          session_type?: 'focus' | 'break'
+          completed?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
+      profiles: {
+        Row: {
+          id: string
+          email: string
+          full_name: string | null
+          avatar_url: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          email: string
+          full_name?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          full_name?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      tasks: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string | null
+          quadrant: 'urgent-important' | 'important' | 'urgent' | 'neither' | null
+          completed: boolean | null
+          created_at: string | null
+          updated_at: string | null
+          priority: 'low' | 'medium' | 'high' | 'critical' | null
+          due_date: string | null
+          tags: Json | null
+          estimated_time: string | null
+          status: string | null
+          notes: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          description?: string | null
+          quadrant?: 'urgent-important' | 'important' | 'urgent' | 'neither' | null
+          completed?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+          priority?: 'low' | 'medium' | 'high' | 'critical' | null
+          due_date?: string | null
+          tags?: Json | null
+          estimated_time?: string | null
+          status?: string | null
+          notes?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          description?: string | null
+          quadrant?: 'urgent-important' | 'important' | 'urgent' | 'neither' | null
+          completed?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+          priority?: 'low' | 'medium' | 'high' | 'critical' | null
+          due_date?: string | null
+          tags?: Json | null
+          estimated_time?: string | null
+          status?: string | null
+          notes?: string | null
+        }
+      }
     }
     Views: {
       [_ in never]: never
