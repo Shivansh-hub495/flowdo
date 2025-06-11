@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useTasks, Task } from '@/hooks/useTasks';
 import { usePomodoroSessions } from '@/hooks/usePomodoroSessions';
+import { supabase } from '@/integrations/supabase/client';
 import AddTaskDialog from '@/components/AddTaskDialog';
 
 interface TodayViewProps {
@@ -41,8 +42,14 @@ const TodayView: React.FC<TodayViewProps> = ({ onStartPomodoro }) => {
     }
   };
 
-  const startFocusSession = () => {
-    window.location.href = '/Clock.html';
+  const startFocusSession = async () => {
+    // Get current session token to pass to Clock.html
+    const { data: { session } } = await supabase.auth.getSession();
+    const authToken = session?.access_token || '';
+    const userId = session?.user?.id || '';
+
+    // Navigate to Clock.html with authentication tokens for session recording
+    window.location.href = `/Clock.html?token=${authToken}&userId=${userId}`;
   };
 
   const getPriorityIcon = (priority?: string) => {
