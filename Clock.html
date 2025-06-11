@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flip clock timer</title>
+  <title>25 Minute Flip Clock Timer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1275,11 +1275,11 @@
       <div class="sound-selection">
         <label>Choose Sound</label>
         <div class="sound-options">
-          <button class="sound-option active" data-sound="/sounds/Sound1.mp3">Sound 1</button>
-          <button class="sound-option" data-sound="/sounds/Rain.mp3">Rain</button>
-          <button class="sound-option" data-sound="/sounds/Rewire.mp3">Rewire</button>
-          <button class="sound-option" data-sound="/sounds/Waves.mp3">Waves</button>
-          <button class="sound-option" data-sound="/sounds/Drum.mp3">Drum</button>
+          <button class="sound-option active" data-sound="sounds/Sound1.mp3">Sound 1</button>
+          <button class="sound-option" data-sound="sounds/Drum.mp3">Drum</button>
+          <button class="sound-option" data-sound="sounds/Rain.mp3">Rain</button>
+          <button class="sound-option" data-sound="sounds/Rewire.mp3">Rewire</button>
+          <button class="sound-option" data-sound="sounds/Waves.mp3">Waves</button>
         </div>
       </div>
 
@@ -1301,12 +1301,12 @@
 
   <!-- Audio Elements -->
   <audio id="backgroundAudio" loop>
-    <source src="/sounds/Sound1.mp3" type="audio/mpeg">
+    <source src="sounds/Sound1.mp3" type="audio/mpeg">
   </audio>
 
   <!-- Clock Sound Audio (Timer Only) -->
   <audio id="clockAudio" loop>
-    <source src="/sounds/Clock.mp3" type="audio/mpeg">
+    <source src="sounds/Clock.mp3" type="audio/mpeg">
   </audio>
   
   <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
@@ -2727,7 +2727,6 @@
           clock.stop();
           isRunning = false;
           isPaused = false;
-          handleTimerStop(); // Stop all sounds when resetting
 
           if (isBreakTime) {
             // Reset the 5-minute break timer
@@ -2779,10 +2778,6 @@
             }
           }
 
-          // Stop current timer and sounds
-          clock.stop();
-          handleTimerStop();
-
           // Reset and start immediately
           isRunning = false;
           isPaused = false;
@@ -2792,7 +2787,6 @@
           setTimeout(() => {
             clock.start();
             isRunning = true;
-            handleTimerStart(); // Start sounds when restarting
             updateButtons();
             updateStatus();
           }, 100);
@@ -2803,7 +2797,6 @@
       let currentVolume = 0.5; // 50%
       let isAudioPlaying = false;
       let shouldPlayAudio = false;
-      let audioContextInitialized = false;
       const audio = document.getElementById('backgroundAudio');
 
       // Clock Sound Control System (Timer Only)
@@ -2814,17 +2807,6 @@
       // Set initial volume
       audio.volume = currentVolume;
       clockAudio.volume = currentVolume;
-
-      // Initialize audio context on first user interaction
-      function initializeAudioContext() {
-        if (!audioContextInitialized) {
-          // Preload audio files
-          audio.load();
-          clockAudio.load();
-          audioContextInitialized = true;
-          console.log('Audio context initialized');
-        }
-      }
 
       // Sound button hover - show/hide menu
       $('.sound-control').hover(
@@ -2840,7 +2822,6 @@
 
       // Volume controls
       $('#volumeUp').click(function() {
-        initializeAudioContext(); // Initialize on user interaction
         if (currentVolume < 1) {
           currentVolume = Math.min(1, currentVolume + 0.1);
           audio.volume = currentVolume;
@@ -2850,7 +2831,6 @@
       });
 
       $('#volumeDown').click(function() {
-        initializeAudioContext(); // Initialize on user interaction
         if (currentVolume > 0) {
           currentVolume = Math.max(0, currentVolume - 0.1);
           audio.volume = currentVolume;
@@ -2865,7 +2845,6 @@
 
       // Play/Pause controls
       $('#playPauseSound').click(function() {
-        initializeAudioContext(); // Initialize on user interaction
         if (isAudioPlaying) {
           pauseAudio();
         } else {
@@ -2874,34 +2853,14 @@
       });
 
       function playAudio() {
-        // Ensure audio is ready to play
-        if (audio.readyState < 2) {
-          audio.load();
-        }
-
-        const playPromise = audio.play();
-
-        if (playPromise !== undefined) {
-          playPromise.then(() => {
-            isAudioPlaying = true;
-            shouldPlayAudio = true;
-            $('#playPauseSound .playback-icon').text('⏸');
-            $('#playPauseSound .playback-text').text('Pause');
-            console.log('Audio started successfully');
-          }).catch(e => {
-            console.error('Audio play failed:', e);
-            // Reset button state if play fails
-            $('#playPauseSound .playback-icon').text('▶');
-            $('#playPauseSound .playback-text').text('Play');
-            isAudioPlaying = false;
-            shouldPlayAudio = false;
-
-            // Show user-friendly error
-            if (e.name === 'NotAllowedError') {
-              alert('Audio playback blocked by browser. Please interact with the page first or check your browser settings.');
-            }
-          });
-        }
+        audio.play().then(() => {
+          isAudioPlaying = true;
+          shouldPlayAudio = true;
+          $('#playPauseSound .playback-icon').text('⏸');
+          $('#playPauseSound .playback-text').text('Pause');
+        }).catch(e => {
+          console.log('Audio play failed:', e);
+        });
       }
 
       function pauseAudio() {
@@ -2914,7 +2873,6 @@
 
       // Sound selection
       $('.sound-option').click(function() {
-        initializeAudioContext(); // Initialize on user interaction
         $('.sound-option').removeClass('active');
         $(this).addClass('active');
 
@@ -2926,13 +2884,12 @@
           pauseAudio();
         }
 
-        // Change source and load new audio
+        // Change source
         audio.src = soundPath;
-        audio.load(); // Ensure new audio is loaded
 
         // Resume if it was playing
         if (wasPlaying && shouldPlayAudio) {
-          setTimeout(() => playAudio(), 200); // Increased timeout for loading
+          setTimeout(() => playAudio(), 100);
         }
       });
 
@@ -2953,21 +2910,11 @@
       // Clock Sound Functions
       function playClockSound() {
         if (isClockSoundEnabled && isRunning) {
-          // Ensure clock audio is ready
-          if (clockAudio.readyState < 2) {
-            clockAudio.load();
-          }
-
-          const playPromise = clockAudio.play();
-          if (playPromise !== undefined) {
-            playPromise.then(() => {
-              isClockSoundPlaying = true;
-              console.log('Clock sound started successfully');
-            }).catch(e => {
-              console.error('Clock audio play failed:', e);
-              isClockSoundPlaying = false;
-            });
-          }
+          clockAudio.play().then(() => {
+            isClockSoundPlaying = true;
+          }).catch(e => {
+            console.log('Clock audio play failed:', e);
+          });
         }
       }
 

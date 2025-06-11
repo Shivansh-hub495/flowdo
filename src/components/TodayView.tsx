@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Calendar, Clock, Play, CheckCircle, Target, TrendingUp, AlertCircle, Star, Zap, Tag, Trash2 } from 'lucide-react';
+import { Calendar, Clock, Play, CheckCircle, Plus, Coffee, Target, TrendingUp, AlertCircle, Star, Zap, Tag } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,13 +15,8 @@ interface TodayViewProps {
 
 const TodayView: React.FC<TodayViewProps> = ({ onStartPomodoro }) => {
   const { toast } = useToast();
-  const { tasks, loading, toggleTaskCompletion, deleteTask, getTodaysTasks, getCompletedTasks, fetchTasks } = useTasks();
+  const { tasks, loading, toggleTaskCompletion, getTodaysTasks, getCompletedTasks } = useTasks();
   const { getTodaysPomodoroCount, getTodaysFocusTimeFormatted } = usePomodoroSessions();
-
-  const handleTaskCreated = async () => {
-    // Force refresh the tasks data
-    await fetchTasks();
-  };
 
   const todaysTasks = getTodaysTasks();
   const completedTasks = getCompletedTasks();
@@ -41,19 +36,6 @@ const TodayView: React.FC<TodayViewProps> = ({ onStartPomodoro }) => {
         toast({
           title: updatedTask.completed ? "Task completed!" : "Task reopened",
           description: `"${updatedTask.title}" ${updatedTask.completed ? 'marked as complete' : 'has been reopened'}`,
-        });
-      }
-    }
-  };
-
-  const handleDeleteTask = async (taskId: string) => {
-    const task = tasks.find(t => t.id === taskId);
-    if (task) {
-      const success = await deleteTask(taskId);
-      if (success) {
-        toast({
-          title: "Task deleted",
-          description: `"${task.title}" has been deleted`,
         });
       }
     }
@@ -80,6 +62,15 @@ const TodayView: React.FC<TodayViewProps> = ({ onStartPomodoro }) => {
       case 'medium': return 'border-yellow-500/50 bg-yellow-500/10';
       case 'low': return 'border-green-500/50 bg-green-500/10';
       default: return 'border-slate-600/50 bg-slate-800/50';
+    }
+  };
+
+  const getQuadrantColor = (quadrant: string) => {
+    switch (quadrant) {
+      case 'urgent-important': return 'bg-red-500/20 border-red-500/50 text-red-400';
+      case 'important': return 'bg-purple-500/20 border-purple-500/50 text-purple-400';
+      case 'urgent': return 'bg-orange-500/20 border-orange-500/50 text-orange-400';
+      default: return 'bg-gray-500/20 border-gray-500/50 text-gray-400';
     }
   };
 
@@ -193,7 +184,7 @@ const TodayView: React.FC<TodayViewProps> = ({ onStartPomodoro }) => {
                 </div>
                 Today's Tasks
               </CardTitle>
-              <AddTaskDialog onTaskCreated={handleTaskCreated} />
+              <AddTaskDialog />
             </div>
           </CardHeader>
           <CardContent className="pt-0 space-y-4">
@@ -313,17 +304,6 @@ const TodayView: React.FC<TodayViewProps> = ({ onStartPomodoro }) => {
                         <Play size={14} />
                       </Button>
                     )}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-9 w-9 p-0 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-400/30 text-red-400 hover:text-red-300 transition-all duration-200"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteTask(task.id);
-                      }}
-                    >
-                      <Trash2 size={14} />
-                    </Button>
                   </div>
                 </div>
                 {/* Task metadata */}
