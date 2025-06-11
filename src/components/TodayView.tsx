@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useTasks, Task } from '@/hooks/useTasks';
+import { usePomodoroSessions } from '@/hooks/usePomodoroSessions';
 import AddTaskDialog from '@/components/AddTaskDialog';
 
 interface TodayViewProps {
@@ -15,6 +16,7 @@ interface TodayViewProps {
 const TodayView: React.FC<TodayViewProps> = ({ onStartPomodoro }) => {
   const { toast } = useToast();
   const { tasks, loading, toggleTaskCompletion, getTodaysTasks, getCompletedTasks } = useTasks();
+  const { getTodaysPomodoroCount, getTodaysFocusTimeFormatted } = usePomodoroSessions();
 
   const todaysTasks = getTodaysTasks();
   const completedTasks = getCompletedTasks();
@@ -22,8 +24,8 @@ const TodayView: React.FC<TodayViewProps> = ({ onStartPomodoro }) => {
   const stats = {
     totalTasks: tasks.length,
     completed: completedTasks.length,
-    pomodoroSessions: 3,
-    focusTime: '2h 15m',
+    pomodoroSessions: getTodaysPomodoroCount(),
+    focusTime: getTodaysFocusTimeFormatted(),
   };
 
   const handleToggleTaskComplete = async (taskId: string) => {
