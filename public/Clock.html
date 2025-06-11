@@ -1276,7 +1276,6 @@
         <label>Choose Sound</label>
         <div class="sound-options">
           <button class="sound-option active" data-sound="sounds/Sound1.mp3">Sound 1</button>
-          <button class="sound-option" data-sound="sounds/Drum.mp3">Drum</button>
           <button class="sound-option" data-sound="sounds/Rain.mp3">Rain</button>
           <button class="sound-option" data-sound="sounds/Rewire.mp3">Rewire</button>
           <button class="sound-option" data-sound="sounds/Waves.mp3">Waves</button>
@@ -2940,6 +2939,7 @@
           clock.stop();
           isRunning = false;
           isPaused = false;
+          handleTimerStop(); // Stop all sounds when resetting
 
           // Reset time tracking
           totalElapsedTime = 0;
@@ -2997,6 +2997,10 @@
             }
           }
 
+          // Stop current timer and sounds
+          clock.stop();
+          handleTimerStop();
+
           // Reset and start immediately
           isRunning = false;
           isPaused = false;
@@ -3023,6 +3027,7 @@
           setTimeout(() => {
             clock.start();
             isRunning = true;
+            handleTimerStart(); // Start sounds when restarting
             updateButtons();
             updateStatus();
           }, 100);
