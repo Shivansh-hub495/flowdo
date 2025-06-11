@@ -65,7 +65,7 @@ async function performWebSearch(query: string): Promise<string> {
 }
 
 const A4F_API_KEY = "ddc-a4f-a5b60b35ab15499085d92e403ebe952d";
-const A4F_BASE_URL = "https://api.a4f.co/v1";
+const A4F_BASE_URL = "https://cors-anywhere.herokuapp.com/https://api.a4f.co/v1";
 
 // Test the API key format
 console.log('A4F API Key format check:', {
@@ -168,6 +168,7 @@ class A4FClient {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.apiKey}`,
+          'Origin': 'https://flowdo-pink.vercel.app/',
         },
         body: JSON.stringify({
           model: request.model || "provider-3/gemini-2.5-pro-preview-06-05",
@@ -464,7 +465,8 @@ export async function testA4FConnection(): Promise<string> {
       headers: {
         'Authorization': `Bearer ${A4F_API_KEY}`,
         'Content-Type': 'application/json',
-        'User-Agent': 'FlowDo-Chat/1.0'
+        'User-Agent': 'FlowDo-Chat/1.0',
+        'Origin': 'https://flowdo-pink.vercel.app/'
       },
     });
 
@@ -554,7 +556,8 @@ export async function testA4FDirectFetch(): Promise<string> {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${A4F_API_KEY}`,
-          'User-Agent': 'FlowDo-Chat/1.0'
+          'User-Agent': 'FlowDo-Chat/1.0',
+          'Origin': 'https://flowdo-pink.vercel.app/'
         },
         body: JSON.stringify(requestBody)
       });
@@ -619,7 +622,8 @@ export async function testA4FDirectFetch(): Promise<string> {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${A4F_API_KEY}`,
-            'User-Agent': 'FlowDo-Chat/1.0'
+            'User-Agent': 'FlowDo-Chat/1.0',
+            'Origin': 'https://flowdo-pink.vercel.app/'
           },
           body: JSON.stringify(altRequestBody)
         });
