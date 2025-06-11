@@ -623,7 +623,7 @@ export async function testA4FDirectFetch(): Promise<string> {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${A4F_API_KEY}`,
             'User-Agent': 'FlowDo-Chat/1.0',
-            'Origin': 'https://flowdo-pink.vercel.app/'
+            "Origin: 'https://flowdo-pink.vercel.app/"
           },
           body: JSON.stringify(altRequestBody)
         });
