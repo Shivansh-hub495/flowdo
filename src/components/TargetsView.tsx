@@ -11,6 +11,11 @@ const TargetsView: React.FC = () => {
   const { toast } = useToast();
   const { targets, loading, toggleTargetCompletion, deleteTarget, getTargetsByType, fetchTargets } = useTargets();
 
+  const handleTargetCreated = async () => {
+    // Force refresh the targets data
+    await fetchTargets();
+  };
+
 
 
   const tomorrowTargets = getTargetsByType('tomorrow');
@@ -176,7 +181,7 @@ const TargetsView: React.FC = () => {
             </div>
             {title}
           </CardTitle>
-          <AddTargetDialog targetType={type}>
+          <AddTargetDialog targetType={type} onTargetCreated={handleTargetCreated}>
             <Button size="sm" variant="outline" className="border-slate-600 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white">
               <Target size={14} className="mr-1" />
               Add

@@ -15,8 +15,13 @@ interface TodayViewProps {
 
 const TodayView: React.FC<TodayViewProps> = ({ onStartPomodoro }) => {
   const { toast } = useToast();
-  const { tasks, loading, toggleTaskCompletion, getTodaysTasks, getCompletedTasks } = useTasks();
+  const { tasks, loading, toggleTaskCompletion, getTodaysTasks, getCompletedTasks, fetchTasks } = useTasks();
   const { getTodaysPomodoroCount, getTodaysFocusTimeFormatted } = usePomodoroSessions();
+
+  const handleTaskCreated = async () => {
+    // Force refresh the tasks data
+    await fetchTasks();
+  };
 
   const todaysTasks = getTodaysTasks();
   const completedTasks = getCompletedTasks();
@@ -175,7 +180,7 @@ const TodayView: React.FC<TodayViewProps> = ({ onStartPomodoro }) => {
                 </div>
                 Today's Tasks
               </CardTitle>
-              <AddTaskDialog />
+              <AddTaskDialog onTaskCreated={handleTaskCreated} />
             </div>
           </CardHeader>
           <CardContent className="pt-0 space-y-4">

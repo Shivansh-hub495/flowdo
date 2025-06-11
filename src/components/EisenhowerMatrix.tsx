@@ -15,10 +15,15 @@ interface EisenhowerMatrixProps {
 }
 
 const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({ onStartPomodoro }) => {
-  const { tasks, loading, deleteTask, getTasksByQuadrant, toggleTaskCompletion } = useTasks();
+  const { tasks, loading, deleteTask, getTasksByQuadrant, toggleTaskCompletion, fetchTasks } = useTasks();
   const { toast } = useToast();
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+
+  const handleTaskCreated = async () => {
+    // Force refresh the tasks data
+    await fetchTasks();
+  };
 
   const quadrants = [
     {
@@ -257,6 +262,7 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({ onStartPomodoro }) 
                   )}
                   <AddTaskDialog
                     defaultQuadrant={quadrant.id as Task['quadrant']}
+                    onTaskCreated={handleTaskCreated}
                   >
                     <Button
                       variant="ghost"
