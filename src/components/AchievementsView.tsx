@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trophy, Edit, Trash2 } from 'lucide-react';
+import { Plus, Trophy, Edit, Trash2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,11 +9,24 @@ import AddAchievementModal from './AddAchievementModal';
 import EditAchievementModal from './EditAchievementModal';
 import { Achievement } from '@/hooks/useAchievements';
 
-const AchievementsView = () => {
+interface AchievementsViewProps {
+  onBack?: () => void;
+}
+
+const AchievementsView = ({ onBack }: AchievementsViewProps = {}) => {
   const { achievements, loading, deleteAchievement, refetch } = useAchievements();
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingAchievement, setEditingAchievement] = useState<Achievement | null>(null);
   const isMobile = useIsMobile();
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      // Default back behavior - go to previous page in history
+      window.history.back();
+    }
+  };
 
   // Optimize grid columns based on screen width for mobile
   const getGridCols = () => {
@@ -80,6 +93,17 @@ const AchievementsView = () => {
         {/* Header */}
         <div className={`${isMobile ? 'flex flex-col space-y-4 mb-6' : 'flex items-center justify-between mb-8'}`}>
           <div className={`flex items-center ${isMobile ? 'space-x-2' : 'space-x-3'}`}>
+            {/* Back Button */}
+            <Button
+              onClick={handleBack}
+              variant="ghost"
+              size={isMobile ? "sm" : "default"}
+              className={`${isMobile ? 'p-2' : 'p-3'} hover:bg-slate-200/50 text-slate-700 hover:text-slate-900`}
+              aria-label="Go back"
+            >
+              <ArrowLeft className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'}`} />
+            </Button>
+
             <div className={`${isMobile ? 'p-2' : 'p-3'} bg-yellow-500/20 rounded-xl`}>
               <Trophy className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} text-yellow-400`} />
             </div>
