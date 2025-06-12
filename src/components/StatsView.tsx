@@ -8,6 +8,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Area, AreaChart } from 'recharts';
 import { usePomodoroSessions } from '@/hooks/usePomodoroSessions';
 import { useStatistics } from '@/hooks/useStatistics';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const StatsView: React.FC = () => {
   const { getTodaysPomodoroCount, getTodaysFocusTimeFormatted } = usePomodoroSessions();
@@ -20,6 +21,7 @@ const StatsView: React.FC = () => {
     formatTime,
     loading
   } = useStatistics();
+  const isMobile = useIsMobile();
 
   if (loading) {
     return (
@@ -84,7 +86,7 @@ const StatsView: React.FC = () => {
   const progressPercentage = Math.min((weeklyStats.totalFocusTime / 60 / weeklyGoal) * 100, 100);
 
   return (
-    <div className="p-6 space-y-8">
+    <div className={`${isMobile ? 'p-4 space-y-6' : 'p-6 space-y-8'}`}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -173,7 +175,7 @@ const StatsView: React.FC = () => {
         </Card>
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className={`grid grid-cols-1 lg:grid-cols-2 ${isMobile ? 'gap-4' : 'gap-8'} mb-8`}>
           {/* Weekly Focus Chart */}
           <Card className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 border border-slate-700/50">
             <CardHeader>
@@ -182,10 +184,10 @@ const StatsView: React.FC = () => {
                 Weekly Focus Breakdown
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <ChartContainer config={chartConfig} className="h-[300px]">
+            <CardContent className={isMobile ? 'p-4' : ''}>
+              <ChartContainer config={chartConfig} className={`${isMobile ? 'h-[250px]' : 'h-[300px]'} w-full`}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={weeklyChartData}>
+                  <AreaChart data={weeklyChartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
                     <defs>
                       <linearGradient id="focusGradient" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
@@ -196,12 +198,13 @@ const StatsView: React.FC = () => {
                       dataKey="day"
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: '#94a3b8', fontSize: 12 }}
+                      tick={{ fill: '#94a3b8', fontSize: isMobile ? 10 : 12 }}
                     />
                     <YAxis
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: '#94a3b8', fontSize: 12 }}
+                      tick={{ fill: '#94a3b8', fontSize: isMobile ? 10 : 12 }}
+                      width={isMobile ? 30 : 40}
                     />
                     <ChartTooltip
                       content={<ChartTooltipContent />}
@@ -233,16 +236,16 @@ const StatsView: React.FC = () => {
                 Task Distribution
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <ChartContainer config={chartConfig} className="h-[300px]">
+            <CardContent className={isMobile ? 'p-4' : ''}>
+              <ChartContainer config={chartConfig} className={`${isMobile ? 'h-[250px]' : 'h-[300px]'} w-full`}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={quadrantChartData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={60}
-                      outerRadius={120}
+                      innerRadius={isMobile ? 40 : 60}
+                      outerRadius={isMobile ? 80 : 120}
                       paddingAngle={5}
                       dataKey="value"
                     >
@@ -262,7 +265,7 @@ const StatsView: React.FC = () => {
                   </PieChart>
                 </ResponsiveContainer>
               </ChartContainer>
-              <div className="grid grid-cols-2 gap-2 mt-4">
+              <div className={`grid ${isMobile ? 'grid-cols-1 gap-1' : 'grid-cols-2 gap-2'} mt-4`}>
                 {quadrantChartData.map((item, index) => (
                   <div key={index} className="flex items-center space-x-2">
                     <div

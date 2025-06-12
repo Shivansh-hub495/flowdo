@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { checkAndMigrateTargets } from '@/utils/migrateTargets';
 
 export interface Target {
   id: string;
@@ -243,19 +244,17 @@ export const useTargets = () => {
     if (!user) return;
 
     try {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      // Get yesterday's tomorrow targets (which should become today's tasks)
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      
+      // Get user's local date
+      const userLocalDate = new Date();
+      const userLocalDateString = userLocalDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+
+      // Get tomorrow targets that are due today or earlier (should become today's tasks)
       const { data: tomorrowTargets, error: fetchError } = await supabase
         .from('targets')
         .select('*')
         .eq('user_id', user.id)
         .eq('target_type', 'tomorrow')
-        .eq('target_date', yesterday.toISOString().split('T')[0]);
+        .lte('target_date', userLocalDateString);
 
       if (fetchError) {
         throw fetchError;
@@ -285,12 +284,12 @@ export const useTargets = () => {
         }
 
         // Delete the migrated tomorrow targets
+        const targetIds = tomorrowTargets.map(target => target.id);
         const { error: deleteError } = await supabase
           .from('targets')
           .delete()
           .eq('user_id', user.id)
-          .eq('target_type', 'tomorrow')
-          .eq('target_date', yesterday.toISOString().split('T')[0]);
+          .in('id', targetIds);
 
         if (deleteError) {
           throw deleteError;
@@ -298,7 +297,7 @@ export const useTargets = () => {
 
         // Refresh targets
         await fetchTargets();
-        
+
         toast({
           title: "Targets Migrated",
           description: `${tomorrowTargets.length} target(s) moved to today's tasks!`,
@@ -312,7 +311,13 @@ export const useTargets = () => {
   // Load targets when user changes and migrate tomorrow targets
   useEffect(() => {
     if (user) {
-      migrateTomorrowTargetsToTasks().then(() => {
+      checkAndMigrateTargets(user.id).then((result) => {
+        if (result.success && result.migratedCount > 0) {
+          toast({
+            title: "Targets Migrated",
+            description: `${result.migratedCount} target(s) moved to today's tasks!`,
+          });
+        }
         fetchTargets();
       });
     } else {

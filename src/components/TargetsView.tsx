@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, CheckCircle, Target, Trash2, Edit, Crosshair } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,14 +6,62 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useTargets, Target as TargetType } from '@/hooks/useTargets';
 import AddTargetDialog from '@/components/AddTargetDialog';
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/components/ui/carousel';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const TargetsView: React.FC = () => {
   const { toast } = useToast();
   const { targets, loading, toggleTargetCompletion, deleteTarget, getTargetsByType, fetchTargets } = useTargets();
+  const isMobile = useIsMobile();
+
+  // Carousel state for mobile navigation
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
+
+  // Target type labels for navigation indicators
+  const targetTypes = [
+    { type: 'tomorrow' as const, label: 'Tomorrow' },
+    { type: 'week' as const, label: 'Week' },
+    { type: 'month' as const, label: 'Month' },
+    { type: 'year' as const, label: 'Year' }
+  ];
 
   const handleTargetCreated = async () => {
     // Force refresh the targets data
     await fetchTargets();
+  };
+
+  // Carousel navigation effects
+  useEffect(() => {
+    if (!carouselApi) return;
+
+    const onSelect = () => {
+      setCurrentSlide(carouselApi.selectedScrollSnap());
+      setCanScrollPrev(carouselApi.canScrollPrev());
+      setCanScrollNext(carouselApi.canScrollNext());
+    };
+
+    carouselApi.on('select', onSelect);
+    onSelect(); // Set initial state
+
+    return () => {
+      carouselApi.off('select', onSelect);
+    };
+  }, [carouselApi]);
+
+  // Navigation functions
+  const scrollToPrevious = () => {
+    carouselApi?.scrollPrev();
+  };
+
+  const scrollToNext = () => {
+    carouselApi?.scrollNext();
+  };
+
+  const scrollToSlide = (index: number) => {
+    carouselApi?.scrollTo(index);
   };
 
 
@@ -91,7 +139,11 @@ const TargetsView: React.FC = () => {
   const renderTargetCard = (target: TargetType) => (
     <div
       key={target.id}
-      className={`group relative p-4 rounded-xl border transition-all duration-300 hover:scale-[1.02] ${
+      className={`group relative rounded-xl border transition-all duration-300 ${
+        isMobile
+          ? 'target-item-mobile'
+          : 'p-4 hover:scale-[1.02]'
+      } ${
         target.completed
           ? 'bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/30'
           : `bg-gradient-to-r ${getTargetTypeColor(target.target_type)} hover:shadow-lg`
@@ -101,7 +153,7 @@ const TargetsView: React.FC = () => {
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-2 mb-2">
             {getTargetTypeIcon(target.target_type)}
-            <h3 className={`font-medium truncate ${
+            <h3 className={`font-medium truncate target-title ${
               target.completed ? 'line-through text-slate-500' : 'text-white'
             }`}>
               {target.title}
@@ -128,27 +180,31 @@ const TargetsView: React.FC = () => {
               {getTargetTypeLabel(target.target_type)}
             </Badge>
 
-            <div className="flex items-center space-x-2">
+            <div className={`flex items-center space-x-2 target-actions ${isMobile ? 'space-x-1' : 'space-x-2'}`}>
               <Button
                 size="sm"
                 variant="ghost"
-                className={`h-8 w-8 p-0 ${
+                className={`p-0 ${
+                  isMobile ? 'h-7 w-7' : 'h-8 w-8'
+                } ${
                   target.completed
                     ? 'bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 text-green-400'
                     : 'bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-400'
                 }`}
                 onClick={() => handleToggleTargetComplete(target.id)}
               >
-                <CheckCircle size={14} />
+                <CheckCircle size={isMobile ? 12 : 14} />
               </Button>
-              
+
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-8 w-8 p-0 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400"
+                className={`p-0 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 ${
+                  isMobile ? 'h-7 w-7' : 'h-8 w-8'
+                }`}
                 onClick={() => handleDeleteTarget(target.id)}
               >
-                <Trash2 size={14} />
+                <Trash2 size={isMobile ? 12 : 14} />
               </Button>
             </div>
           </div>
@@ -172,25 +228,37 @@ const TargetsView: React.FC = () => {
     title: string,
     description: string
   ) => (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-slate-800/40 to-slate-900/40 border border-slate-700/50 h-fit">
-      <CardHeader className="pb-4">
+    <Card className={`relative overflow-hidden bg-gradient-to-br from-slate-800/40 to-slate-900/40 border border-slate-700/50 h-fit ${
+      isMobile ? 'target-card-mobile' : ''
+    }`}>
+      <CardHeader className={`pb-4 ${isMobile ? 'card-header' : ''}`}>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold text-white flex items-center">
-            <div className={`inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br ${getTargetTypeColor(type)} mr-3`}>
+          <CardTitle className={`font-semibold text-white flex items-center ${
+            isMobile ? 'text-base' : 'text-lg'
+          }`}>
+            <div className={`inline-flex items-center justify-center rounded-lg bg-gradient-to-br ${getTargetTypeColor(type)} mr-3 ${
+              isMobile ? 'w-6 h-6' : 'w-8 h-8'
+            }`}>
               {getTargetTypeIcon(type)}
             </div>
             {title}
           </CardTitle>
           <AddTargetDialog targetType={type} onTargetCreated={handleTargetCreated}>
-            <Button size="sm" variant="outline" className="border-slate-600 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white">
-              <Target size={14} className="mr-1" />
+            <Button
+              size="sm"
+              variant="outline"
+              className={`border-slate-600 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white ${
+                isMobile ? 'add-button' : ''
+              }`}
+            >
+              <Target size={isMobile ? 12 : 14} className="mr-1" />
               Add
             </Button>
           </AddTargetDialog>
         </div>
-        <p className="text-sm text-slate-400">{description}</p>
+        <p className={`text-slate-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>{description}</p>
       </CardHeader>
-      <CardContent className="pt-0 space-y-3">
+      <CardContent className={`pt-0 space-y-3 ${isMobile ? 'card-content' : ''}`}>
         {loading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
@@ -210,28 +278,84 @@ const TargetsView: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-violet-950/10 p-6">
+    <div className={`min-h-screen bg-gradient-to-br from-background via-background to-violet-950/10 ${
+      isMobile ? 'targets-mobile-container targets-mobile-safe-area' : 'p-6'
+    }`}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/20 mb-4">
-            <Crosshair className="text-violet-400" size={28} />
+        <div className={`text-center ${isMobile ? 'targets-header-mobile' : 'mb-8'}`}>
+          <div className={`inline-flex items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/20 mb-4 ${
+            isMobile ? 'icon-container' : 'w-16 h-16'
+          }`}>
+            <Crosshair className="text-violet-400" size={isMobile ? 24 : 28} />
           </div>
-          <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+          <h1 className={`font-bold mb-2 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent ${
+            isMobile ? '' : 'text-3xl'
+          }`}>
             Future Targets
           </h1>
-          <p className="text-slate-400 text-lg">
+          <p className={`text-slate-400 ${isMobile ? '' : 'text-lg'}`}>
             Plan and organize your goals across different time horizons
           </p>
         </div>
 
         {/* Target Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {renderTargetColumn('tomorrow', tomorrowTargets, 'Tomorrow', 'Tasks for tomorrow')}
-          {renderTargetColumn('week', weekTargets, 'This Week', 'Weekly objectives')}
-          {renderTargetColumn('month', monthTargets, 'This Month', 'Monthly goals')}
-          {renderTargetColumn('year', yearTargets, 'This Year', 'Annual aspirations')}
-        </div>
+        {isMobile ? (
+          <div className="relative">
+            {/* Navigation Indicators */}
+            <div className="targets-nav-indicators">
+              {targetTypes.map((targetType, index) => (
+                <div
+                  key={targetType.type}
+                  className={`targets-nav-dot ${currentSlide === index ? 'active' : ''}`}
+                  onClick={() => scrollToSlide(index)}
+                  aria-label={`Go to ${targetType.label} targets`}
+                />
+              ))}
+            </div>
+
+            {/* Carousel */}
+            <div className="targets-carousel-mobile">
+              <Carousel
+                className="w-full"
+                setApi={setCarouselApi}
+                opts={{
+                  align: "center",
+                  loop: false,
+                }}
+              >
+                <CarouselContent className="-ml-2">
+                  <CarouselItem className="pl-2">
+                    {renderTargetColumn('tomorrow', tomorrowTargets, 'Tomorrow', 'Tasks for tomorrow')}
+                  </CarouselItem>
+                  <CarouselItem className="pl-2">
+                    {renderTargetColumn('week', weekTargets, 'This Week', 'Weekly objectives')}
+                  </CarouselItem>
+                  <CarouselItem className="pl-2">
+                    {renderTargetColumn('month', monthTargets, 'This Month', 'Monthly goals')}
+                  </CarouselItem>
+                  <CarouselItem className="pl-2">
+                    {renderTargetColumn('year', yearTargets, 'This Year', 'Annual aspirations')}
+                  </CarouselItem>
+                </CarouselContent>
+              </Carousel>
+            </div>
+
+            {/* Current Section Label */}
+            <div className="text-center mt-4">
+              <p className="text-sm text-slate-400">
+                {targetTypes[currentSlide]?.label} Targets
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {renderTargetColumn('tomorrow', tomorrowTargets, 'Tomorrow', 'Tasks for tomorrow')}
+            {renderTargetColumn('week', weekTargets, 'This Week', 'Weekly objectives')}
+            {renderTargetColumn('month', monthTargets, 'This Month', 'Monthly goals')}
+            {renderTargetColumn('year', yearTargets, 'This Year', 'Annual aspirations')}
+          </div>
+        )}
       </div>
     </div>
   );

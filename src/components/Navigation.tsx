@@ -16,6 +16,7 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
   SidebarFooter,
+  useSidebar,
 } from '@/components/ui/sidebar';
 
 interface SidebarNavigationProps {
@@ -26,6 +27,7 @@ interface SidebarNavigationProps {
 const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ activeView, onViewChange }) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { isMobile, setOpenMobile } = useSidebar();
 
   const navItems = [
     { id: 'today', label: 'Today', icon: Calendar, description: 'Your daily focus' },
@@ -56,6 +58,14 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ activeView, onVie
     await signOut();
   };
 
+  const handleNavigation = (view: string) => {
+    onViewChange(view);
+    // Close mobile sidebar after navigation
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
+
   return (
     <Sidebar className="bg-gradient-to-b from-slate-900/95 to-slate-950/98 backdrop-blur-xl border-r border-slate-800/50 shadow-2xl">
       <SidebarHeader className="border-b border-slate-800/30 p-6 bg-gradient-to-r from-slate-900/50 to-slate-800/30">
@@ -84,7 +94,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ activeView, onVie
             return (
               <SidebarMenuItem key={item.id}>
                 <SidebarMenuButton
-                  onClick={() => onViewChange(item.id)}
+                  onClick={() => handleNavigation(item.id)}
                   className={cn(
                     "group relative w-full justify-start px-4 py-6 rounded-xl transition-all duration-300 ease-out",
                     "hover:scale-[1.01] hover:shadow-md",

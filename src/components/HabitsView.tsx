@@ -20,6 +20,7 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import { useHabits, type Habit, type HabitWithStats } from '@/hooks/useHabits';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Dialog,
   DialogContent,
@@ -93,6 +94,7 @@ const HabitDetailView: React.FC<{
   const [isJournalLoading, setIsJournalLoading] = React.useState(false);
   const [autoSaveTimeout, setAutoSaveTimeout] = React.useState<NodeJS.Timeout | null>(null);
   const [saveStatus, setSaveStatus] = React.useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const isMobile = useIsMobile();
 
   React.useEffect(() => {
     const loadMonthlyData = async () => {
@@ -172,7 +174,7 @@ const HabitDetailView: React.FC<{
 
 
   return (
-    <div className="p-6 space-y-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen">
+    <div className={`${isMobile ? 'p-4 space-y-4' : 'p-6 space-y-6'} bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen`}>
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
@@ -207,8 +209,8 @@ const HabitDetailView: React.FC<{
       {/* Quick Actions */}
       <Card className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50">
         <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
+          <div className={`${isMobile ? 'flex flex-col space-y-4' : 'flex items-center justify-between'}`}>
+            <div className={isMobile ? 'text-center' : ''}>
               <h3 className="text-lg font-semibold text-white mb-1">Today's Progress</h3>
               <p className="text-slate-400 text-sm">
                 {habit.completed_today ? 'Completed for today!' : 'Mark as complete when done'}
@@ -220,7 +222,7 @@ const HabitDetailView: React.FC<{
                 habit.completed_today
                   ? 'bg-green-600 hover:bg-green-700 text-white'
                   : 'bg-slate-700 hover:bg-slate-600 text-slate-300'
-              }`}
+              } ${isMobile ? 'w-full' : ''}`}
             >
               {habit.completed_today ? (
                 <>
@@ -239,35 +241,35 @@ const HabitDetailView: React.FC<{
       </Card>
 
       {/* Statistics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className={`grid ${isMobile ? 'grid-cols-2 gap-3' : 'grid-cols-1 md:grid-cols-4 gap-6'}`}>
         <Card className="bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20">
-          <CardContent className="p-6 text-center">
-            <Flame className="text-orange-400 mx-auto mb-2" size={24} />
-            <div className="text-3xl font-bold text-orange-400">{habit.current_streak}</div>
+          <CardContent className={`${isMobile ? 'p-4' : 'p-6'} text-center`}>
+            <Flame className="text-orange-400 mx-auto mb-2" size={isMobile ? 20 : 24} />
+            <div className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-orange-400`}>{habit.current_streak}</div>
             <div className="text-sm text-slate-400">Current Streak</div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20">
-          <CardContent className="p-6 text-center">
-            <TrendingUp className="text-green-400 mx-auto mb-2" size={24} />
-            <div className="text-3xl font-bold text-green-400">{habit.completion_rate}%</div>
+          <CardContent className={`${isMobile ? 'p-4' : 'p-6'} text-center`}>
+            <TrendingUp className="text-green-400 mx-auto mb-2" size={isMobile ? 20 : 24} />
+            <div className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-green-400`}>{habit.completion_rate}%</div>
             <div className="text-sm text-slate-400">Completion Rate</div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
-          <CardContent className="p-6 text-center">
-            <Target className="text-blue-400 mx-auto mb-2" size={24} />
-            <div className="text-3xl font-bold text-blue-400">{habit.total_completions}</div>
+          <CardContent className={`${isMobile ? 'p-4' : 'p-6'} text-center`}>
+            <Target className="text-blue-400 mx-auto mb-2" size={isMobile ? 20 : 24} />
+            <div className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-blue-400`}>{habit.total_completions}</div>
             <div className="text-sm text-slate-400">Total Completions</div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-purple-500/10 to-violet-500/10 border border-purple-500/20">
-          <CardContent className="p-6 text-center">
-            <Calendar className="text-purple-400 mx-auto mb-2" size={24} />
-            <div className="text-3xl font-bold text-purple-400">
+          <CardContent className={`${isMobile ? 'p-4' : 'p-6'} text-center`}>
+            <Calendar className="text-purple-400 mx-auto mb-2" size={isMobile ? 20 : 24} />
+            <div className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-purple-400`}>
               {habit.target_frequency}x
             </div>
             <div className="text-sm text-slate-400">{habit.frequency_type}</div>
@@ -281,11 +283,13 @@ const HabitDetailView: React.FC<{
           <CardTitle className="text-white">{getCurrentMonthName()}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-7 gap-3">
+          <div className={`grid grid-cols-7 ${isMobile ? 'gap-1' : 'gap-3'}`}>
             {monthlyData.map((dayData) => (
               <div
                 key={dayData.date}
-                className={`w-12 h-12 rounded-lg transition-all duration-300 flex items-center justify-center text-sm font-medium border-2 ${
+                className={`${
+                  isMobile ? 'w-8 h-8 text-xs' : 'w-12 h-12 text-sm'
+                } rounded-lg transition-all duration-300 flex items-center justify-center font-medium border-2 ${
                   dayData.completed
                     ? 'bg-green-500/80 border-green-400 text-white shadow-lg shadow-green-500/30'
                     : 'bg-slate-700/30 border-slate-600/50 text-slate-300 hover:border-slate-500/70'
@@ -296,7 +300,7 @@ const HabitDetailView: React.FC<{
               </div>
             ))}
           </div>
-          <div className="flex items-center gap-4 mt-6 text-sm text-slate-400">
+          <div className={`flex items-center ${isMobile ? 'flex-col space-y-2' : 'gap-4'} mt-6 text-sm text-slate-400`}>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-green-500/80 border-2 border-green-400 rounded-lg"></div>
               <span>Completed</span>
@@ -312,17 +316,19 @@ const HabitDetailView: React.FC<{
       {/* Monthly Journal */}
       <Card className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50">
         <CardHeader>
-          <CardTitle className="text-white flex items-center justify-between">
-            Monthly Journal - {getCurrentMonthName()}
-            {saveStatus === 'saving' && (
-              <span className="text-sm text-yellow-400">Saving...</span>
-            )}
-            {saveStatus === 'saved' && (
-              <span className="text-sm text-green-400">Saved ✓</span>
-            )}
-            {saveStatus === 'error' && (
-              <span className="text-sm text-red-400">Error saving</span>
-            )}
+          <CardTitle className={`text-white ${isMobile ? 'flex flex-col space-y-2' : 'flex items-center justify-between'}`}>
+            <span>Monthly Journal - {getCurrentMonthName()}</span>
+            <div className={`${isMobile ? 'self-start' : ''}`}>
+              {saveStatus === 'saving' && (
+                <span className="text-sm text-yellow-400">Saving...</span>
+              )}
+              {saveStatus === 'saved' && (
+                <span className="text-sm text-green-400">Saved ✓</span>
+              )}
+              {saveStatus === 'error' && (
+                <span className="text-sm text-red-400">Error saving</span>
+              )}
+            </div>
           </CardTitle>
           <p className="text-slate-400 text-sm">
             Reflect on your progress, challenges, and insights for this month. Auto-saves as you type.
@@ -336,14 +342,14 @@ const HabitDetailView: React.FC<{
             className="min-h-[120px] bg-slate-900/50 border-slate-600/50 text-white placeholder:text-slate-500 resize-none"
             rows={6}
           />
-          <div className="flex justify-between items-center">
+          <div className={`${isMobile ? 'flex flex-col space-y-2' : 'flex justify-between items-center'}`}>
             <div className="text-sm text-slate-500">
               {journalContent.length} characters
             </div>
             <Button
               onClick={handleJournalSave}
               disabled={isJournalLoading || saveStatus === 'saving'}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className={`bg-blue-600 hover:bg-blue-700 text-white ${isMobile ? 'w-full' : ''}`}
             >
               {isJournalLoading || saveStatus === 'saving' ? 'Saving...' : 'Save Now'}
             </Button>
@@ -360,6 +366,7 @@ const HabitsView: React.FC = () => {
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [selectedHabit, setSelectedHabit] = useState<HabitWithStats | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const isMobile = useIsMobile();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -457,20 +464,24 @@ const HabitsView: React.FC = () => {
   }
 
   return (
-    <div className="p-6 space-y-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen">
+    <div className={`${isMobile ? 'p-4 space-y-4' : 'p-6 space-y-6'} bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen`}>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+      <div className={`${isMobile ? 'flex flex-col space-y-3' : 'flex items-center justify-between'}`}>
+        <div className={isMobile ? 'text-center' : ''}>
+          <h1 className={`font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent ${
+            isMobile ? 'text-2xl' : 'text-3xl'
+          }`}>
             Habit Tracker
           </h1>
-          <p className="text-slate-400 mt-1">Build lasting habits, one day at a time</p>
+          <p className={`text-slate-400 mt-1 ${isMobile ? 'text-sm' : ''}`}>Build lasting habits, one day at a time</p>
         </div>
-        
+
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogTrigger asChild>
-            <Button 
-              className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white"
+            <Button
+              className={`bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white ${
+                isMobile ? 'w-full h-12 text-base' : ''
+              }`}
               onClick={() => {
                 resetForm();
                 setShowCreateDialog(true);
@@ -571,39 +582,39 @@ const HabitsView: React.FC = () => {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className={`grid ${isMobile ? 'grid-cols-2 gap-3' : 'grid-cols-1 md:grid-cols-4 gap-6'}`}>
         <Card className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
-          <CardContent className="p-6 text-center">
-            <Target className="text-blue-400 mx-auto mb-2" size={24} />
-            <div className="text-2xl font-bold text-blue-400">{habits.length}</div>
+          <CardContent className={`${isMobile ? 'p-4' : 'p-6'} text-center`}>
+            <Target className="text-blue-400 mx-auto mb-2" size={isMobile ? 20 : 24} />
+            <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-blue-400`}>{habits.length}</div>
             <div className="text-sm text-slate-400">Active Habits</div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20">
-          <CardContent className="p-6 text-center">
-            <CheckCircle2 className="text-green-400 mx-auto mb-2" size={24} />
-            <div className="text-2xl font-bold text-green-400">
+          <CardContent className={`${isMobile ? 'p-4' : 'p-6'} text-center`}>
+            <CheckCircle2 className="text-green-400 mx-auto mb-2" size={isMobile ? 20 : 24} />
+            <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-green-400`}>
               {habits.filter(h => h.completed_today).length}
             </div>
             <div className="text-sm text-slate-400">Completed Today</div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20">
-          <CardContent className="p-6 text-center">
-            <Flame className="text-orange-400 mx-auto mb-2" size={24} />
-            <div className="text-2xl font-bold text-orange-400">
+          <CardContent className={`${isMobile ? 'p-4' : 'p-6'} text-center`}>
+            <Flame className="text-orange-400 mx-auto mb-2" size={isMobile ? 20 : 24} />
+            <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-orange-400`}>
               {Math.max(...habits.map(h => h.current_streak), 0)}
             </div>
             <div className="text-sm text-slate-400">Best Streak</div>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-gradient-to-br from-purple-500/10 to-violet-500/10 border border-purple-500/20">
-          <CardContent className="p-6 text-center">
-            <TrendingUp className="text-purple-400 mx-auto mb-2" size={24} />
-            <div className="text-2xl font-bold text-purple-400">
+          <CardContent className={`${isMobile ? 'p-4' : 'p-6'} text-center`}>
+            <TrendingUp className="text-purple-400 mx-auto mb-2" size={isMobile ? 20 : 24} />
+            <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-purple-400`}>
               {habits.length > 0 ? Math.round(habits.reduce((acc, h) => acc + h.completion_rate, 0) / habits.length) : 0}%
             </div>
             <div className="text-sm text-slate-400">Avg. Completion</div>
