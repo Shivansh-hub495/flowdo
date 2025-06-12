@@ -11,9 +11,10 @@ import { Achievement } from '@/hooks/useAchievements';
 
 interface AchievementsViewProps {
   onBack?: () => void;
+  onViewChange?: (view: string) => void;
 }
 
-const AchievementsView = ({ onBack }: AchievementsViewProps = {}) => {
+const AchievementsView = ({ onBack, onViewChange }: AchievementsViewProps = {}) => {
   const { achievements, loading, deleteAchievement, refetch } = useAchievements();
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingAchievement, setEditingAchievement] = useState<Achievement | null>(null);
@@ -22,8 +23,11 @@ const AchievementsView = ({ onBack }: AchievementsViewProps = {}) => {
   const handleBack = () => {
     if (onBack) {
       onBack();
+    } else if (onViewChange) {
+      // Navigate to TodayView page within the app
+      onViewChange('today');
     } else {
-      // Default back behavior - go to previous page in history
+      // Fallback to browser history
       window.history.back();
     }
   };

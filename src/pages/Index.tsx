@@ -74,7 +74,7 @@ const Index = () => {
       case 'stats':
         return <StatsView />;
       case 'achievements':
-        return <AchievementsView />;
+        return <AchievementsView onViewChange={setActiveView} />;
       case 'chat':
         return <ChatView />;
       default:
