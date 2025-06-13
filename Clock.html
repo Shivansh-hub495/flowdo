@@ -1205,48 +1205,6 @@
 
     /* Enhanced Mobile Responsive Design */
 
-    /* Orientation Message for Mobile */
-    .orientation-message {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.95);
-        color: #ffffff;
-        z-index: 10000;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        padding: 20px;
-        font-family: "Montserrat", sans-serif;
-    }
-
-    .orientation-message h2 {
-        font-size: 2em;
-        margin-bottom: 20px;
-        color: #7877c6;
-    }
-
-    .orientation-message p {
-        font-size: 1.2em;
-        margin-bottom: 10px;
-        opacity: 0.9;
-    }
-
-    .orientation-icon {
-        font-size: 4em;
-        margin: 20px 0;
-        animation: rotate 2s infinite linear;
-    }
-
-    @keyframes rotate {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-
     /* Large Tablets (768px - 1024px) */
     @media (max-width: 1024px) and (min-width: 769px) {
         .timer-container {
@@ -1381,49 +1339,7 @@
             font-size: 1em;
         }
     }
-    /* Enhanced Mobile Responsive Design */
 
-    /* Orientation Message for Mobile */
-    .orientation-message {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.95);
-        color: #ffffff;
-        z-index: 10000;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        padding: 20px;
-        font-family: "Montserrat", sans-serif;
-    }
-
-    .orientation-message h2 {
-        font-size: 2em;
-        margin-bottom: 20px;
-        color: #7877c6;
-    }
-
-    .orientation-message p {
-        font-size: 1.2em;
-        margin-bottom: 10px;
-        opacity: 0.9;
-    }
-
-    .orientation-icon {
-        font-size: 4em;
-        margin: 20px 0;
-        animation: rotate 2s infinite linear;
-    }
-
-    @keyframes rotate {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
 
     /* Large Tablets (768px - 1024px) */
     @media (max-width: 1024px) and (min-width: 769px) {
@@ -1857,13 +1773,7 @@
   </style>
 </head>
 <body>
-  <!-- Orientation Message for Mobile -->
-  <div id="orientationMessage" class="orientation-message">
-    <h2>Rotate Your Device</h2>
-    <div class="orientation-icon">📱</div>
-    <p>For the best timer experience,</p>
-    <p>please rotate to landscape mode</p>
-  </div>
+
 
   <div class="timer-container">
     <!-- Time Selection -->
@@ -3657,23 +3567,11 @@
       // Initialize with default 25 minutes (focus mode)
       initTimer(25, false);
 
-      // Mobile Responsive and Orientation Handling
-      function handleOrientationChange() {
-        const orientationMessage = document.getElementById('orientationMessage');
-        const isMobile = window.innerWidth <= 768;
-        const isLandscape = window.innerWidth > window.innerHeight;
-
-        if (isMobile && !isLandscape) {
-          // Show orientation message for mobile portrait mode
-          if (orientationMessage) {
-            orientationMessage.style.display = 'flex';
-          }
-        } else {
-          // Hide orientation message for landscape or desktop
-          if (orientationMessage) {
-            orientationMessage.style.display = 'none';
-          }
-        }
+      // Mobile Responsive Handling
+      function handleMobileResponsive() {
+        // Mobile responsive adjustments without orientation restrictions
+        adjustClockForMobile();
+        adjustSoundMenuForMobile();
       }
 
       // Mobile Touch Enhancements
@@ -3734,24 +3632,18 @@
 
       // Initialize mobile enhancements
       function initMobileEnhancements() {
-        handleOrientationChange();
+        handleMobileResponsive();
         addMobileTouchEnhancements();
-        adjustClockForMobile();
-        adjustSoundMenuForMobile();
       }
 
       // Event listeners for responsive behavior
       window.addEventListener('resize', function() {
-        handleOrientationChange();
-        adjustClockForMobile();
-        adjustSoundMenuForMobile();
+        handleMobileResponsive();
       });
 
       window.addEventListener('orientationchange', function() {
         setTimeout(function() {
-          handleOrientationChange();
-          adjustClockForMobile();
-          adjustSoundMenuForMobile();
+          handleMobileResponsive();
         }, 100);
       });
 

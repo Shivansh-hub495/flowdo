@@ -17,6 +17,25 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import * as React from "react"
 
+// Simple text formatter for AI responses
+function formatAIResponse(text: string) {
+    return text
+        // Convert **text** to bold
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        // Convert *text* to italic (but not if it's part of **)
+        .replace(/(?<!\*)\*([^*]+?)\*(?!\*)/g, '<em>$1</em>')
+        // Convert only actual line breaks to HTML breaks
+        .replace(/\n/g, '<br>')
+        // Handle bullet points with proper spacing
+        .replace(/\* \*\*(.*?)\*\*/g, '<br>• <strong>$1</strong>')
+        // Handle numbered lists
+        .replace(/^(\d+\.\s)/gm, '<br><strong>$1</strong>')
+        // Clean up any leading breaks
+        .replace(/^<br>/, '')
+        // Clean up multiple consecutive breaks (max 2)
+        .replace(/(<br>){3,}/g, '<br><br>');
+}
+
 interface UseAutoResizeTextareaProps {
     minHeight: number;
     maxHeight?: number;
@@ -433,7 +452,7 @@ export function AnimatedAIChat() {
                 {conversation.length > 0 && (
                     <div
                         ref={conversationRef}
-                        className="h-full overflow-y-auto scrollbar-hide px-6 py-4"
+                        className="h-full overflow-y-auto scrollbar-hide px-6 py-4 pb-32"
                         style={{
                             scrollbarWidth: 'none',
                             msOverflowStyle: 'none'
@@ -485,12 +504,32 @@ export function AnimatedAIChat() {
                                             style={{ fontFamily: 'Montserrat, sans-serif' }}
                                         >
                                             {typeof message.content === 'string' ? (
-                                                message.content
+                                                message.role === 'assistant' ? (
+                                                    <div
+                                                        dangerouslySetInnerHTML={{
+                                                            __html: formatAIResponse(message.content)
+                                                        }}
+                                                        className="leading-relaxed formatted-ai-text"
+                                                    />
+                                                ) : (
+                                                    message.content
+                                                )
                                             ) : (
                                                 <div className="space-y-2">
                                                     {message.content.map((item, idx) => (
                                                         <div key={idx}>
-                                                            {item.type === 'text' && item.text}
+                                                            {item.type === 'text' && (
+                                                                message.role === 'assistant' ? (
+                                                                    <div
+                                                                        dangerouslySetInnerHTML={{
+                                                                            __html: formatAIResponse(item.text)
+                                                                        }}
+                                                                        className="leading-relaxed formatted-ai-text"
+                                                                    />
+                                                                ) : (
+                                                                    item.text
+                                                                )
+                                                            )}
                                                             {item.type === 'image_url' && item.image_url && (
                                                                 <img
                                                                     src={item.image_url.url}
@@ -517,7 +556,7 @@ export function AnimatedAIChat() {
             </div>
 
             {/* Fixed Input Area */}
-            <div className="relative z-10 p-6">
+            <div className="fixed bottom-0 left-0 right-0 z-10 p-6 flex justify-center md:left-[--sidebar-width]">
                 <div className="w-full max-w-3xl mx-auto">
                     <motion.div
                         className="relative backdrop-blur-2xl bg-white/[0.03] rounded-3xl border border-white/[0.08] shadow-2xl"
@@ -718,27 +757,13 @@ export function AnimatedAIChat() {
                 </div>
             </div>
 
-            {/* Debug Test Button - Temporary */}
-            {conversation.length === 0 && (
-                <div className="relative z-10 px-6 pb-4">
-                    <div className="w-full max-w-3xl mx-auto flex justify-center">
-                        <button
-                            onClick={testAPIConnection}
-                            disabled={isTyping}
-                            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg text-sm font-medium transition-all disabled:opacity-50 shadow-lg"
-                            style={{ fontFamily: 'Montserrat, sans-serif' }}
-                        >
-                            {isTyping ? 'Testing API Connection...' : 'Test API Connection'}
-                        </button>
-                    </div>
-                </div>
-            )}
+
 
             {/* Typing Indicator - Left corner above chat bar */}
             <AnimatePresence>
                 {isTyping && (
                     <motion.div
-                        className="relative z-10 px-6 pb-2"
+                        className="fixed bottom-24 left-0 right-0 z-10 px-6 pb-2 md:left-[--sidebar-width]"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
@@ -825,8 +850,26 @@ const scrollbarHideStyles = `
 }
 `;
 
+const formattedTextStyles = `
+.formatted-ai-text {
+  line-height: 1.6;
+}
+.formatted-ai-text strong {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.98);
+  font-family: 'Montserrat', sans-serif;
+}
+.formatted-ai-text em {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.9);
+}
+.formatted-ai-text br {
+  line-height: 1.4;
+}
+`;
+
 if (typeof document !== 'undefined') {
     const style = document.createElement('style');
-    style.innerHTML = rippleKeyframes + scrollbarHideStyles;
+    style.innerHTML = rippleKeyframes + scrollbarHideStyles + formattedTextStyles;
     document.head.appendChild(style);
 }

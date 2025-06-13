@@ -1,4 +1,4 @@
-// A4F API Configuration and Client using OpenAI SDK
+// Gemini API Configuration and Client using OpenAI SDK
 import OpenAI from 'openai';
 
 // Web search function using multiple fallback methods
@@ -64,27 +64,15 @@ async function performWebSearch(query: string): Promise<string> {
   }
 }
 
-const A4F_API_KEY = "ddc-a4f-a5b60b35ab15499085d92e403ebe952d";
-const A4F_BASE_URL = "https://cors-anywhere.herokuapp.com/https://api.a4f.co/v1";
+const GEMINI_API_KEY = "AIzaSyCrtkMOzyietUvehdPthI4N-2ZCyFMgtVY";
+const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
 
 // Test the API key format
-console.log('A4F API Key format check:', {
-  length: A4F_API_KEY.length,
-  prefix: A4F_API_KEY.substring(0, 7),
-  hasHyphens: A4F_API_KEY.includes('-'),
-  isValidFormat: A4F_API_KEY.startsWith('ddc-a4f-') && A4F_API_KEY.length === 44
-});
-
-// Create OpenAI client configured for A4F
-const openai = new OpenAI({
-  apiKey: A4F_API_KEY,
-  baseURL: A4F_BASE_URL,
-  dangerouslyAllowBrowser: true, // Allow browser usage for development
-  timeout: 30000, // 30 second timeout
-  defaultHeaders: {
-    'User-Agent': 'FlowDo-Chat/1.0',
-  },
-  defaultQuery: undefined,
+console.log('Gemini API Key format check:', {
+  length: GEMINI_API_KEY.length,
+  prefix: GEMINI_API_KEY.substring(0, 15),
+  hasHyphens: GEMINI_API_KEY.includes('-'),
+  isValidFormat: GEMINI_API_KEY.startsWith('AIza') && GEMINI_API_KEY.length === 39
 });
 
 interface ChatMessage {
@@ -141,66 +129,154 @@ interface ChatCompletionResponse {
   };
 }
 
-class A4FClient {
+class GeminiClient {
   private apiKey: string;
   private baseURL: string;
 
   constructor(apiKey: string, baseURL: string) {
     this.apiKey = apiKey;
     this.baseURL = baseURL;
-    console.log('A4F Client initialized with:', {
+    console.log('Gemini Client initialized with:', {
       baseURL: this.baseURL,
-      apiKeyPrefix: this.apiKey.substring(0, 10) + '...'
+      apiKeyPrefix: this.apiKey.substring(0, 15) + '...'
     });
   }
 
   async createChatCompletion(request: ChatCompletionRequest): Promise<ChatCompletionResponse> {
     try {
-      console.log('Sending request to A4F API:', {
-        url: `${this.baseURL}/chat/completions`,
-        model: request.model || "provider-3/gemini-2.5-pro-preview-06-05",
+      const model = request.model || "gemini-2.0-flash";
+      console.log('Sending request to Gemini API:', {
+        url: `${this.baseURL}/models/${model}:generateContent`,
+        model: model,
         messageCount: request.messages.length,
-        authHeader: `Bearer ${this.apiKey.substring(0, 10)}...`
+        authKey: `${this.apiKey.substring(0, 15)}...`
       });
 
-      const response = await fetch(`${this.baseURL}/chat/completions`, {
+      // Convert OpenAI format to Gemini format
+      const geminiRequest = this.convertToGeminiFormat(request);
+
+      const response = await fetch(`${this.baseURL}/models/${model}:generateContent?key=${this.apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Origin': 'https://flowdo-pink.vercel.app/',
         },
-        body: JSON.stringify({
-          model: request.model || "provider-3/gemini-2.5-pro-preview-06-05",
-          messages: request.messages,
-          temperature: request.temperature || 0.7,
-          max_tokens: request.max_tokens || 1000,
-          stream: request.stream || false,
-        }),
+        body: JSON.stringify(geminiRequest),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('A4F API error response:', {
+        console.error('Gemini API error response:', {
           status: response.status,
           statusText: response.statusText,
           headers: Object.fromEntries(response.headers.entries()),
           body: errorText
         });
-        throw new Error(`A4F API error: ${response.status} ${response.statusText} - ${errorText}`);
+        throw new Error(`Gemini API error: ${response.status} ${response.statusText} - ${errorText}`);
       }
 
       const data = await response.json();
-      console.log('A4F API response received:', {
-        id: data.id,
-        model: data.model,
-        choicesCount: data.choices?.length
+      console.log('Gemini API response received:', {
+        candidates: data.candidates?.length,
+        usageMetadata: data.usageMetadata
       });
-      return data;
+
+      // Convert Gemini response back to OpenAI format
+      return this.convertFromGeminiFormat(data, model);
     } catch (error) {
-      console.error('Error calling A4F API:', error);
+      console.error('Error calling Gemini API:', error);
       throw error;
     }
+  }
+
+  private convertToGeminiFormat(request: ChatCompletionRequest): any {
+    const contents: any[] = [];
+
+    for (const message of request.messages) {
+      if (message.role === 'system') {
+        // System messages are handled differently in Gemini
+        continue;
+      }
+
+      const parts: any[] = [];
+
+      if (typeof message.content === 'string') {
+        parts.push({ text: message.content });
+      } else if (Array.isArray(message.content)) {
+        for (const item of message.content) {
+          if (item.type === 'text' && item.text) {
+            parts.push({ text: item.text });
+          } else if (item.type === 'image_url' && item.image_url) {
+            // Convert base64 image to Gemini format
+            const imageUrl = item.image_url.url;
+            if (imageUrl.startsWith('data:')) {
+              const [mimeType, base64Data] = imageUrl.split(',');
+              const mediaType = mimeType.split(':')[1].split(';')[0];
+              parts.push({
+                inlineData: {
+                  mimeType: mediaType,
+                  data: base64Data
+                }
+              });
+            }
+          }
+        }
+      }
+
+      contents.push({
+        role: message.role === 'assistant' ? 'model' : 'user',
+        parts: parts
+      });
+    }
+
+    const geminiRequest: any = {
+      contents: contents
+    };
+
+    // Add generation config
+    if (request.temperature !== undefined || request.max_tokens !== undefined) {
+      geminiRequest.generationConfig = {};
+      if (request.temperature !== undefined) {
+        geminiRequest.generationConfig.temperature = request.temperature;
+      }
+      if (request.max_tokens !== undefined) {
+        geminiRequest.generationConfig.maxOutputTokens = request.max_tokens;
+      }
+    }
+
+    // Add system instruction if present
+    const systemMessage = request.messages.find(msg => msg.role === 'system');
+    if (systemMessage && typeof systemMessage.content === 'string') {
+      geminiRequest.systemInstruction = {
+        parts: [{ text: systemMessage.content }]
+      };
+    }
+
+    return geminiRequest;
+  }
+
+  private convertFromGeminiFormat(geminiResponse: any, model: string): ChatCompletionResponse {
+    const candidate = geminiResponse.candidates?.[0];
+    const content = candidate?.content?.parts?.[0]?.text || '';
+
+    return {
+      id: `chatcmpl-${Date.now()}`,
+      object: 'chat.completion',
+      created: Math.floor(Date.now() / 1000),
+      model: model,
+      choices: [{
+        index: 0,
+        message: {
+          role: 'assistant',
+          content: content
+        },
+        finish_reason: candidate?.finishReason?.toLowerCase() || 'stop'
+      }],
+      usage: {
+        prompt_tokens: geminiResponse.usageMetadata?.promptTokenCount || 0,
+        completion_tokens: geminiResponse.usageMetadata?.candidatesTokenCount || 0,
+        total_tokens: geminiResponse.usageMetadata?.totalTokenCount || 0
+      }
+    };
   }
 
   async sendMessage(
@@ -292,8 +368,8 @@ class A4FClient {
     });
 
     try {
-      console.log('Sending message to A4F via OpenAI SDK:', {
-        model: "provider-3/gemini-2.5-pro-preview-06-05",
+      console.log('Sending message to Gemini API:', {
+        model: "gemini-2.0-flash",
         messageCount: messages.length,
         webSearchEnabled,
         attachmentCount: attachments.length,
@@ -301,7 +377,7 @@ class A4FClient {
       });
 
       const requestBody: any = {
-        model: "provider-3/gemini-2.5-pro-preview-06-05",
+        model: "gemini-2.0-flash",
         messages,
         temperature: 0.7,
         max_tokens: 1000,
@@ -347,14 +423,14 @@ class A4FClient {
         max_tokens: requestBody.max_tokens
       });
 
-      // Add timeout and retry logic
-      let completion: OpenAI.Chat.Completions.ChatCompletion;
+      // Use the direct Gemini API instead of OpenAI SDK
+      let completion: ChatCompletionResponse;
       let retryCount = 0;
       const maxRetries = 2;
 
       while (retryCount <= maxRetries) {
         try {
-          completion = await openai.chat.completions.create(requestBody);
+          completion = await this.createChatCompletion(requestBody);
           break; // Success, exit retry loop
         } catch (error) {
           retryCount++;
@@ -369,7 +445,7 @@ class A4FClient {
         }
       }
 
-      console.log('A4F response received:', {
+      console.log('Gemini response received:', {
         id: completion.id,
         model: completion.model,
         usage: completion.usage,
@@ -384,7 +460,7 @@ class A4FClient {
 
       return responseContent;
     } catch (error) {
-      console.error('Error sending message to A4F:', error);
+      console.error('Error sending message to Gemini:', error);
 
       // More detailed error logging
       if (error instanceof Error) {
@@ -442,31 +518,28 @@ class A4FClient {
   }
 }
 
-// Create and export the A4F client instance
-export const a4fClient = new A4FClient(A4F_API_KEY, A4F_BASE_URL);
+// Create and export the Gemini client instance (keeping a4fClient name for compatibility)
+export const a4fClient = new GeminiClient(GEMINI_API_KEY, GEMINI_BASE_URL);
 
 // Export types for use in components
 export type { ChatMessage, ChatCompletionRequest, ChatCompletionResponse, FileAttachment };
 
-// Test function for debugging
+// Test function for debugging (keeping A4F name for compatibility)
 export async function testA4FConnection(): Promise<string> {
   try {
-    console.log('Testing A4F connection...');
+    console.log('Testing Gemini connection...');
     console.log('API Configuration:', {
-      baseURL: A4F_BASE_URL,
-      apiKeyLength: A4F_API_KEY.length,
-      apiKeyPrefix: A4F_API_KEY.substring(0, 10) + '...'
+      baseURL: GEMINI_BASE_URL,
+      apiKeyLength: GEMINI_API_KEY.length,
+      apiKeyPrefix: GEMINI_API_KEY.substring(0, 15) + '...'
     });
 
     // First test basic connectivity and get available models
-    console.log('Testing basic connectivity to A4F API...');
-    const testResponse = await fetch(`${A4F_BASE_URL}/models`, {
+    console.log('Testing basic connectivity to Gemini API...');
+    const testResponse = await fetch(`${GEMINI_BASE_URL}/models?key=${GEMINI_API_KEY}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${A4F_API_KEY}`,
         'Content-Type': 'application/json',
-        'User-Agent': 'FlowDo-Chat/1.0',
-        'Origin': 'https://flowdo-pink.vercel.app/'
       },
     });
 
@@ -478,16 +551,17 @@ export async function testA4FConnection(): Promise<string> {
 
     if (testResponse.ok) {
       const modelsData = await testResponse.json();
-      console.log('Available models:', modelsData.data?.slice(0, 5)); // Show first 5 models
+      console.log('Available models:', modelsData.models?.slice(0, 5)); // Show first 5 models
     } else {
       const errorText = await testResponse.text();
       console.error('Models endpoint error:', errorText);
     }
 
-    // Now test chat completion with free tier model
+    // Now test chat completion with Gemini model using direct API
     console.log('Testing chat completion...');
-    const completion = await openai.chat.completions.create({
-      model: "provider-3/gemini-2.5-pro-preview-06-05",
+    const client = new GeminiClient(GEMINI_API_KEY, GEMINI_BASE_URL);
+    const completion = await client.createChatCompletion({
+      model: "gemini-2.0-flash",
       messages: [{ role: "user", content: "Hello, just testing the connection. Please respond with 'Connection successful!'" }],
       max_tokens: 50,
       temperature: 0.7,
@@ -501,10 +575,10 @@ export async function testA4FConnection(): Promise<string> {
     });
 
     const response = completion.choices[0]?.message?.content || "No response";
-    console.log('A4F test successful:', response);
+    console.log('Gemini test successful:', response);
     return `✅ Connection Test Successful!\n\nAPI Response: "${response}"\n\nModel: ${completion.model}\nUsage: ${JSON.stringify(completion.usage, null, 2)}`;
   } catch (error) {
-    console.error('A4F test failed:', error);
+    console.error('Gemini test failed:', error);
 
     // More detailed error logging for debugging
     if (error instanceof Error) {
@@ -519,47 +593,47 @@ export async function testA4FConnection(): Promise<string> {
   }
 }
 
-// Alternative test using direct fetch (no OpenAI SDK)
+// Alternative test using direct fetch (no OpenAI SDK) - keeping A4F name for compatibility
 export async function testA4FDirectFetch(): Promise<string> {
   try {
-    console.log('Testing A4F with direct fetch...');
+    console.log('Testing Gemini with direct fetch...');
 
-    // Try a simpler, more compatible model first
-    const requestBody = {
-      model: "provider-3/gemini-2.5-pro-preview-06-05",
-      messages: [
-        { role: "user", content: "Hello, just testing the connection. Please respond with 'Direct fetch successful!'" }
+    // Use direct Gemini API format
+    const geminiRequest = {
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: "Hello, just testing the connection. Please respond with 'Direct fetch successful!'" }]
+        }
       ],
-      max_tokens: 50,
-      temperature: 0.7
+      generationConfig: {
+        maxOutputTokens: 50,
+        temperature: 0.7
+      }
     };
 
+    const model = "gemini-2.0-flash";
     console.log('Direct fetch request:', {
-      url: `${A4F_BASE_URL}/chat/completions`,
+      url: `${GEMINI_BASE_URL}/models/${model}:generateContent`,
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${A4F_API_KEY.substring(0, 10)}...`,
-        'User-Agent': 'FlowDo-Chat/1.0'
+        'Content-Type': 'application/json'
       },
       bodyPreview: {
-        model: requestBody.model,
-        messageCount: requestBody.messages.length,
-        maxTokens: requestBody.max_tokens
+        model: model,
+        contentsCount: geminiRequest.contents.length,
+        maxTokens: geminiRequest.generationConfig.maxOutputTokens
       }
     });
 
     let response: Response;
     try {
-      response = await fetch(`${A4F_BASE_URL}/chat/completions`, {
+      response = await fetch(`${GEMINI_BASE_URL}/models/${model}:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${A4F_API_KEY}`,
-          'User-Agent': 'FlowDo-Chat/1.0',
-          'Origin': 'https://flowdo-pink.vercel.app/'
         },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify(geminiRequest)
       });
     } catch (networkError) {
       console.error('Network error during fetch:', networkError);
@@ -599,39 +673,41 @@ export async function testA4FDirectFetch(): Promise<string> {
     const data = await response.json();
     console.log('Direct fetch success:', data);
 
-    const responseContent = data.choices?.[0]?.message?.content || "No response";
-    return `✅ Direct Fetch Test Successful!\n\nAPI Response: "${responseContent}"\n\nModel: ${data.model}\nUsage: ${JSON.stringify(data.usage, null, 2)}`;
+    const responseContent = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
+    return `✅ Direct Fetch Test Successful!\n\nAPI Response: "${responseContent}"\n\nModel: ${model}\nUsage: ${JSON.stringify(data.usageMetadata, null, 2)}`;
   } catch (error) {
     console.error('Direct fetch test failed:', error);
 
-    // If the first model fails, try a different one
+    // If the first model fails, try a different Gemini model
     if (error instanceof Error && error.message.includes('400')) {
-      console.log('Trying alternative model...');
+      console.log('Trying alternative Gemini model...');
       try {
-        const altRequestBody = {
-          model: "provider-1/gpt-3.5-turbo",
-          messages: [
-            { role: "user", content: "Hello, testing with alternative model. Please respond with 'Alternative model successful!'" }
+        const altModel = "gemini-1.5-flash";
+        const altRequest = {
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: "Hello, testing with alternative model. Please respond with 'Alternative model successful!'" }]
+            }
           ],
-          max_tokens: 50,
-          temperature: 0.7
+          generationConfig: {
+            maxOutputTokens: 50,
+            temperature: 0.7
+          }
         };
 
-        const altResponse = await fetch(`${A4F_BASE_URL}/chat/completions`, {
+        const altResponse = await fetch(`${GEMINI_BASE_URL}/models/${altModel}:generateContent?key=${GEMINI_API_KEY}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${A4F_API_KEY}`,
-            'User-Agent': 'FlowDo-Chat/1.0',
-            "Origin": 'https://flowdo-pink.vercel.app/'
           },
-          body: JSON.stringify(altRequestBody)
+          body: JSON.stringify(altRequest)
         });
 
         if (altResponse.ok) {
           const altData = await altResponse.json();
-          const altContent = altData.choices?.[0]?.message?.content || "No response";
-          return `✅ Alternative Model Test Successful!\n\nAPI Response: "${altContent}"\n\nModel: ${altData.model}\nUsage: ${JSON.stringify(altData.usage, null, 2)}`;
+          const altContent = altData.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
+          return `✅ Alternative Model Test Successful!\n\nAPI Response: "${altContent}"\n\nModel: ${altModel}\nUsage: ${JSON.stringify(altData.usageMetadata, null, 2)}`;
         }
       } catch (altError) {
         console.error('Alternative model also failed:', altError);
