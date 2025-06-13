@@ -27,21 +27,7 @@ const TodayView: React.FC<TodayViewProps> = ({ onStartPomodoro }) => {
   const todaysTasks = getTodaysTasks();
   const completedTasks = getCompletedTasks();
 
-  // Auto-migrate targets when component loads
-  React.useEffect(() => {
-    if (user) {
-      checkAndMigrateTargets(user.id).then((result) => {
-        if (result.success && result.migratedCount > 0) {
-          toast({
-            title: "Targets Migrated",
-            description: `${result.migratedCount} target(s) moved to today's tasks!`,
-          });
-          // Refresh tasks to show the migrated ones
-          fetchTasks();
-        }
-      });
-    }
-  }, [user]);
+  // Note: Migration is now handled in useTargets hook to avoid duplicate calls
 
   const stats = {
     totalTasks: tasks.length,

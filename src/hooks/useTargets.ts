@@ -311,6 +311,7 @@ export const useTargets = () => {
   // Load targets when user changes and migrate tomorrow targets
   useEffect(() => {
     if (user) {
+      // Perform migration check and then fetch targets
       checkAndMigrateTargets(user.id).then((result) => {
         if (result.success && result.migratedCount > 0) {
           toast({
@@ -318,6 +319,11 @@ export const useTargets = () => {
             description: `${result.migratedCount} target(s) moved to today's tasks!`,
           });
         }
+        // Always fetch targets after migration check
+        fetchTargets();
+      }).catch((error) => {
+        console.error('Migration failed:', error);
+        // Still fetch targets even if migration fails
         fetchTargets();
       });
     } else {

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { checkAndCleanupDuplicates } from '@/utils/taskCleanup';
 
 export interface Task {
   id: string;
@@ -250,24 +251,28 @@ export const useTasks = () => {
     return tasks.filter(task => task.completed);
   };
 
-  // Delete tasks older than 24 hours
+  // Delete tasks from previous days (not just 24 hours old)
   const deleteOldTasks = async () => {
     if (!user) return;
 
     try {
-      const twentyFourHoursAgo = new Date();
-      twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+      // Get start of today in user's local timezone
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      console.log('Deleting tasks created before:', today.toISOString());
 
       const { error } = await supabase
         .from('tasks')
         .delete()
         .eq('user_id', user.id)
-        .lt('created_at', twentyFourHoursAgo.toISOString());
+        .lt('created_at', today.toISOString());
 
       if (error) {
         throw error;
       }
 
+      console.log('Old tasks deleted successfully');
       // Refresh tasks after deletion
       await fetchTasks();
     } catch (err) {
@@ -275,10 +280,35 @@ export const useTasks = () => {
     }
   };
 
+  // Check and delete old tasks once per day
+  const checkAndDeleteOldTasks = async () => {
+    if (!user) return;
+
+    try {
+      const lastCleanupKey = `lastTaskCleanup_${user.id}`;
+      const lastCleanup = localStorage.getItem(lastCleanupKey);
+      const currentDate = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format
+
+      // Only cleanup once per day
+      if (lastCleanup !== currentDate) {
+        console.log('Performing daily task cleanup...');
+
+        // Clean up duplicates first, then old tasks
+        await checkAndCleanupDuplicates(user.id);
+        await deleteOldTasks();
+
+        localStorage.setItem(lastCleanupKey, currentDate);
+      }
+    } catch (error) {
+      console.error('Error in automatic task cleanup:', error);
+    }
+  };
+
   // Load tasks when user changes and delete old tasks
   useEffect(() => {
     if (user) {
-      deleteOldTasks();
+      checkAndDeleteOldTasks();
+      fetchTasks();
     } else {
       fetchTasks();
     }
