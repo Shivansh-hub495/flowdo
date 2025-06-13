@@ -33,8 +33,19 @@ const MainContent = ({
   handleBackFromPomodoro
 }) => {
   const { isMobile, setOpenMobile } = useSidebar();
+  const [currentTargetSlide, setCurrentTargetSlide] = React.useState(0);
 
-  // Setup swipe gestures for mobile sidebar (only on mobile)
+  // Reset slide state when leaving targets page
+  React.useEffect(() => {
+    if (activeView !== 'targets') {
+      setCurrentTargetSlide(0);
+    }
+  }, [activeView]);
+
+  // Only enable navbar swipe when on targets page AND on "tomorrow" section (slide 0)
+  const isNavbarSwipeEnabled = activeView === 'targets' && currentTargetSlide === 0;
+
+  // Setup swipe gestures for mobile sidebar (only on mobile and when enabled)
   useSwipeGesture({
     onSwipeRight: () => {
       if (isMobile) {
@@ -47,7 +58,8 @@ const MainContent = ({
       }
     },
     threshold: 50,
-    edgeThreshold: 30
+    edgeThreshold: 30,
+    enabled: isNavbarSwipeEnabled
   });
 
   if (showPomodoro) {
@@ -67,7 +79,7 @@ const MainContent = ({
       case 'matrix':
         return <EisenhowerMatrix onStartPomodoro={handleStartPomodoro} />;
       case 'targets':
-        return <TargetsView />;
+        return <TargetsView onSlideChange={setCurrentTargetSlide} />;
       case 'notes':
         return <NotesView />;
       case 'pomodoro':

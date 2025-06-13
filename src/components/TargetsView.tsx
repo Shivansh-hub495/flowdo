@@ -9,7 +9,11 @@ import AddTargetDialog from '@/components/AddTargetDialog';
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/components/ui/carousel';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-const TargetsView: React.FC = () => {
+interface TargetsViewProps {
+  onSlideChange?: (slideIndex: number) => void;
+}
+
+const TargetsView: React.FC<TargetsViewProps> = ({ onSlideChange }) => {
   const { toast } = useToast();
   const { targets, loading, toggleTargetCompletion, deleteTarget, getTargetsByType, fetchTargets } = useTargets();
   const isMobile = useIsMobile();
@@ -38,9 +42,15 @@ const TargetsView: React.FC = () => {
     if (!carouselApi) return;
 
     const onSelect = () => {
-      setCurrentSlide(carouselApi.selectedScrollSnap());
+      const slideIndex = carouselApi.selectedScrollSnap();
+      setCurrentSlide(slideIndex);
       setCanScrollPrev(carouselApi.canScrollPrev());
       setCanScrollNext(carouselApi.canScrollNext());
+
+      // Notify parent component about slide change
+      if (onSlideChange) {
+        onSlideChange(slideIndex);
+      }
     };
 
     carouselApi.on('select', onSelect);
@@ -49,7 +59,7 @@ const TargetsView: React.FC = () => {
     return () => {
       carouselApi.off('select', onSelect);
     };
-  }, [carouselApi]);
+  }, [carouselApi, onSlideChange]);
 
   // Navigation functions
   const scrollToPrevious = () => {
