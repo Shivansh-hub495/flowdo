@@ -42,8 +42,8 @@ const MainContent = ({
     }
   }, [activeView]);
 
-  // Only enable navbar swipe when on targets page AND on "tomorrow" section (slide 0)
-  const isNavbarSwipeEnabled = activeView === 'targets' && currentTargetSlide === 0;
+  // Enable navbar swipe on all pages EXCEPT when on targets page and NOT on tomorrow section
+  const isNavbarSwipeEnabled = activeView !== 'targets' || currentTargetSlide === 0;
 
   // Setup swipe gestures for mobile sidebar (only on mobile and when enabled)
   useSwipeGesture({
