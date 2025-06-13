@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { hasAlreadyMigratedToday, checkForRecentDuplicates, emergencyDuplicateCleanup } from './migrationSafeguards';
 
 /**
  * Check if migration is needed and perform it automatically
@@ -18,20 +19,43 @@ export const checkAndMigrateTargets = async (userId: string) => {
       const migrationLockKey = `migrationLock_${userId}`;
       const existingLock = localStorage.getItem(migrationLockKey);
 
-      if (existingLock && Date.now() - parseInt(existingLock) < 5000) {
+      if (existingLock && Date.now() - parseInt(existingLock) < 10000) { // Increased to 10 seconds
         console.log('Migration already in progress, skipping...');
         return { success: true, migratedCount: 0, createdTasks: [] };
       }
 
-      // Set migration lock
+      // Set migration lock with current timestamp
       localStorage.setItem(migrationLockKey, Date.now().toString());
 
+      // Also set a session-based lock to prevent cross-tab issues
+      const sessionLockKey = `sessionMigrationLock_${userId}_${currentDate}`;
+      if (sessionStorage.getItem(sessionLockKey)) {
+        console.log('Migration already completed in this session today, skipping...');
+        localStorage.removeItem(migrationLockKey);
+        return { success: true, migratedCount: 0, createdTasks: [] };
+      }
+
       try {
+        // Additional database-level check
+        const alreadyMigrated = await hasAlreadyMigratedToday(userId);
+        if (alreadyMigrated) {
+          console.log('Migration already completed today based on database records');
+          localStorage.setItem(lastMigrationKey, currentDate);
+          sessionStorage.setItem(sessionLockKey, 'completed');
+          localStorage.removeItem(migrationLockKey);
+          return { success: true, migratedCount: 0, createdTasks: [] };
+        }
+
         const result = await manuallyMigrateTargets(userId);
 
         if (result.success) {
           localStorage.setItem(lastMigrationKey, currentDate);
+          sessionStorage.setItem(sessionLockKey, 'completed'); // Mark as completed in session
           localStorage.removeItem(migrationLockKey); // Remove lock on success
+
+          // Run emergency cleanup after migration to catch any edge case duplicates
+          setTimeout(() => emergencyDuplicateCleanup(userId), 2000);
+
           return result;
         }
       } finally {
@@ -77,11 +101,15 @@ export const manuallyMigrateTargets = async (userId: string) => {
       console.log(`Found ${tomorrowTargets.length} targets to migrate:`, tomorrowTargets.map(t => t.title));
 
       // Check if tasks with same titles already exist to prevent duplicates
+      // Also check for tasks created in the last 5 minutes to catch recent duplicates
+      const fiveMinutesAgo = new Date();
+      fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
+
       const { data: existingTasks, error: checkError } = await supabase
         .from('tasks')
-        .select('title')
+        .select('title, created_at')
         .eq('user_id', userId)
-        .in('title', tomorrowTargets.map(t => t.title));
+        .or(`title.in.(${tomorrowTargets.map(t => `"${t.title.replace(/"/g, '\\"')}"`).join(',')}),created_at.gte.${fiveMinutesAgo.toISOString()}`);
 
       if (checkError) {
         console.error('Error checking existing tasks:', checkError);
