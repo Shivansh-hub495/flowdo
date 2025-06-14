@@ -504,4 +504,246 @@
       font-size: 0.7rem;
     }
   }
+
+  /* Targets page mobile-specific improvements */
+  @media (max-width: 767px) {
+    /* Targets page container */
+    .targets-mobile-container {
+      padding: 8px;
+      min-height: 100vh;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Targets header mobile optimization */
+    .targets-header-mobile {
+      margin-bottom: 1.5rem;
+      padding: 0 8px;
+    }
+
+    .targets-header-mobile h1 {
+      font-size: 1.75rem;
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+    }
+
+    .targets-header-mobile p {
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .targets-header-mobile .icon-container {
+      width: 3rem;
+      height: 3rem;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Targets carousel mobile optimization */
+    .targets-carousel-mobile {
+      width: 100%;
+      max-width: calc(100vw - 16px);
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* Target card mobile optimization */
+    .target-card-mobile {
+      min-height: 200px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      border-radius: 12px;
+      margin: 0 4px;
+    }
+
+    .target-card-mobile .card-header {
+      padding: 12px 16px 8px;
+    }
+
+    .target-card-mobile .card-content {
+      padding: 0 16px 16px;
+    }
+
+    .target-card-mobile .add-button {
+      min-height: 32px;
+      min-width: 60px;
+      font-size: 0.8rem;
+      padding: 4px 8px;
+    }
+
+    /* Target item mobile optimization */
+    .target-item-mobile {
+      padding: 12px;
+      border-radius: 8px;
+      min-height: 48px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .target-item-mobile .target-title {
+      font-size: 0.9rem;
+      line-height: 1.3;
+    }
+
+    .target-item-mobile .target-actions {
+      gap: 4px;
+    }
+
+    .target-item-mobile .target-actions button {
+      min-height: 28px;
+      min-width: 28px;
+      padding: 4px;
+    }
+
+    /* Navigation indicators */
+    .targets-nav-indicators {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 16px 0;
+      padding: 0 16px;
+    }
+
+    .targets-nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: rgba(148, 163, 184, 0.3);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .targets-nav-dot.active {
+      background-color: rgba(139, 92, 246, 0.8);
+      transform: scale(1.2);
+    }
+
+    /* Navigation controls */
+    .targets-nav-controls {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+    }
+
+    .targets-nav-prev {
+      left: -8px;
+    }
+
+    .targets-nav-next {
+      right: -8px;
+    }
+
+    .targets-nav-button {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: rgba(148, 163, 184, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+    }
+
+    .targets-nav-button:hover:not(:disabled) {
+      background: rgba(30, 41, 59, 1);
+      border-color: rgba(139, 92, 246, 0.5);
+      color: rgba(139, 92, 246, 0.9);
+      transform: scale(1.1);
+    }
+
+    .targets-nav-button:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* Safe area handling for modern mobile devices */
+    .targets-mobile-safe-area {
+      padding-left: max(8px, env(safe-area-inset-left));
+      padding-right: max(8px, env(safe-area-inset-right));
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+
+    /* Prevent zoom on input focus in target forms */
+    .targets-mobile-container input,
+    .targets-mobile-container textarea,
+    .targets-mobile-container select {
+      font-size: 16px;
+    }
+
+    /* Reduce motion for users who prefer it */
+    @media (prefers-reduced-motion: reduce) {
+      .target-card-mobile,
+      .target-item-mobile,
+      .targets-nav-dot,
+      .targets-nav-button {
+        transition: none !important;
+      }
+    }
+  }
+
+  /* Extra small mobile devices - Targets specific */
+  @media (max-width: 375px) {
+    .targets-header-mobile h1 {
+      font-size: 1.5rem;
+    }
+
+    .targets-header-mobile p {
+      font-size: 0.8rem;
+    }
+
+    .target-card-mobile {
+      margin: 0 2px;
+    }
+
+    .target-item-mobile {
+      padding: 10px;
+    }
+
+    .target-item-mobile .target-title {
+      font-size: 0.85rem;
+    }
+
+    .targets-nav-indicators {
+      gap: 6px;
+      margin: 12px 0;
+    }
+
+    .targets-nav-dot {
+      width: 6px;
+      height: 6px;
+    }
+  }
+
+  /* Large mobile devices and small tablets - Targets specific */
+  @media (min-width: 376px) and (max-width: 767px) {
+    .targets-carousel-mobile {
+      max-width: calc(100vw - 24px);
+    }
+
+    .target-card-mobile {
+      margin: 0 6px;
+    }
+
+    .targets-nav-controls {
+      display: block;
+    }
+
+    .targets-nav-prev {
+      left: -12px;
+    }
+
+    .targets-nav-next {
+      right: -12px;
+    }
+
+    .targets-nav-button {
+      width: 36px;
+      height: 36px;
+    }
+  }
 }
