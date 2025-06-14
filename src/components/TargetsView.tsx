@@ -8,11 +8,13 @@ import { useTargets, Target as TargetType } from '@/hooks/useTargets';
 import AddTargetDialog from '@/components/AddTargetDialog';
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/components/ui/carousel';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useTargetsContext } from '@/pages/Index';
 
 const TargetsView: React.FC = () => {
   const { toast } = useToast();
   const { targets, loading, toggleTargetCompletion, deleteTarget, getTargetsByType, fetchTargets } = useTargets();
   const isMobile = useIsMobile();
+  const targetsContext = useTargetsContext();
 
   // Carousel state for mobile navigation
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
@@ -38,9 +40,15 @@ const TargetsView: React.FC = () => {
     if (!carouselApi) return;
 
     const onSelect = () => {
-      setCurrentSlide(carouselApi.selectedScrollSnap());
+      const newSlide = carouselApi.selectedScrollSnap();
+      setCurrentSlide(newSlide);
       setCanScrollPrev(carouselApi.canScrollPrev());
       setCanScrollNext(carouselApi.canScrollNext());
+
+      // Update the context to sync with navbar swipe functionality
+      if (targetsContext) {
+        targetsContext.setCurrentSlide(newSlide);
+      }
     };
 
     carouselApi.on('select', onSelect);
@@ -49,7 +57,7 @@ const TargetsView: React.FC = () => {
     return () => {
       carouselApi.off('select', onSelect);
     };
-  }, [carouselApi]);
+  }, [carouselApi, targetsContext]);
 
   // Navigation functions
   const scrollToPrevious = () => {

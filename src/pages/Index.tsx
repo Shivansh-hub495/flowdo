@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, createContext, useContext } from 'react';
 import SidebarNavigation from '@/components/Navigation';
 import TodayView from '@/components/TodayView';
 import EisenhowerMatrix from '@/components/EisenhowerMatrix';
@@ -21,6 +21,19 @@ interface Task {
   quadrant?: 'urgent-important' | 'important' | 'urgent' | 'neither';
 }
 
+// Context to track targets page state
+interface TargetsContextType {
+  currentSlide: number;
+  setCurrentSlide: (slide: number) => void;
+}
+
+const TargetsContext = createContext<TargetsContextType | null>(null);
+
+export const useTargetsContext = () => {
+  const context = useContext(TargetsContext);
+  return context;
+};
+
 // Main content component that uses sidebar context for swipe functionality
 const MainContent = ({
   activeView,
@@ -33,19 +46,9 @@ const MainContent = ({
   handleBackFromPomodoro
 }) => {
   const { isMobile, setOpenMobile } = useSidebar();
-  const [currentTargetSlide, setCurrentTargetSlide] = React.useState(0);
+  const [currentTargetsSlide, setCurrentTargetsSlide] = useState(0);
 
-  // Reset slide state when leaving targets page
-  React.useEffect(() => {
-    if (activeView !== 'targets') {
-      setCurrentTargetSlide(0);
-    }
-  }, [activeView]);
-
-  // Disable navbar swipe only on targets page when NOT on "tomorrow" section (slide 0)
-  const isNavbarSwipeEnabled = activeView !== 'targets' || currentTargetSlide === 0;
-
-  // Setup swipe gestures for mobile sidebar (only on mobile and when enabled)
+  // Setup swipe gestures for mobile sidebar (only on mobile and specific conditions)
   useSwipeGesture({
     onSwipeRight: () => {
       if (isMobile) {
@@ -59,7 +62,12 @@ const MainContent = ({
     },
     threshold: 50,
     edgeThreshold: 30,
-    enabled: isNavbarSwipeEnabled
+    shouldEnableSwipe: () => {
+      // Only enable navbar swipe when:
+      // 1. Not on targets page, OR
+      // 2. On targets page but viewing "tomorrow" section (slide 0)
+      return activeView !== 'targets' || currentTargetsSlide === 0;
+    }
   });
 
   if (showPomodoro) {
@@ -79,7 +87,11 @@ const MainContent = ({
       case 'matrix':
         return <EisenhowerMatrix onStartPomodoro={handleStartPomodoro} />;
       case 'targets':
-        return <TargetsView onSlideChange={setCurrentTargetSlide} />;
+        return (
+          <TargetsContext.Provider value={{ currentSlide: currentTargetsSlide, setCurrentSlide: setCurrentTargetsSlide }}>
+            <TargetsView />
+          </TargetsContext.Provider>
+        );
       case 'notes':
         return <NotesView />;
       case 'pomodoro':

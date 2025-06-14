@@ -23,7 +23,7 @@ interface SwipeGestureOptions {
   onSwipeRight?: () => void
   threshold?: number
   edgeThreshold?: number
-  enabled?: boolean
+  shouldEnableSwipe?: () => boolean
 }
 
 export function useSwipeGesture({
@@ -31,14 +31,14 @@ export function useSwipeGesture({
   onSwipeRight,
   threshold = 50,
   edgeThreshold = 30,
-  enabled = true
+  shouldEnableSwipe = () => true
 }: SwipeGestureOptions) {
   const isMobile = useIsMobile()
   const touchStartRef = React.useRef<{ x: number; y: number; time: number } | null>(null)
   const isSwipingRef = React.useRef(false)
 
   const handleTouchStart = React.useCallback((e: TouchEvent) => {
-    if (!isMobile || !enabled) return
+    if (!isMobile || !shouldEnableSwipe()) return
 
     const touch = e.touches[0]
     const startX = touch.clientX
@@ -56,10 +56,10 @@ export function useSwipeGesture({
       // Add visual feedback for edge swipe
       document.body.classList.add('mobile-swipe-active')
     }
-  }, [isMobile, enabled, edgeThreshold])
+  }, [isMobile, edgeThreshold, shouldEnableSwipe])
 
   const handleTouchMove = React.useCallback((e: TouchEvent) => {
-    if (!isMobile || !enabled || !touchStartRef.current) return
+    if (!isMobile || !touchStartRef.current || !shouldEnableSwipe()) return
 
     const touch = e.touches[0]
     const currentX = touch.clientX
@@ -71,10 +71,10 @@ export function useSwipeGesture({
     if (isSwipingRef.current && Math.abs(deltaX) > Math.abs(deltaY)) {
       e.preventDefault()
     }
-  }, [isMobile, enabled])
+  }, [isMobile, shouldEnableSwipe])
 
   const handleTouchEnd = React.useCallback((e: TouchEvent) => {
-    if (!isMobile || !enabled || !touchStartRef.current) return
+    if (!isMobile || !touchStartRef.current || !shouldEnableSwipe()) return
 
     const touch = e.changedTouches[0]
     const endX = touch.clientX
@@ -104,7 +104,7 @@ export function useSwipeGesture({
 
     touchStartRef.current = null
     isSwipingRef.current = false
-  }, [isMobile, enabled, threshold, onSwipeLeft, onSwipeRight])
+  }, [isMobile, threshold, onSwipeLeft, onSwipeRight, shouldEnableSwipe])
 
   const handleTouchCancel = React.useCallback(() => {
     // Clean up on touch cancel
@@ -114,7 +114,7 @@ export function useSwipeGesture({
   }, [])
 
   React.useEffect(() => {
-    if (!isMobile || !enabled) return
+    if (!isMobile) return
 
     const options = { passive: false }
 
@@ -131,7 +131,7 @@ export function useSwipeGesture({
       // Clean up any remaining classes
       document.body.classList.remove('mobile-swipe-active')
     }
-  }, [isMobile, enabled, handleTouchStart, handleTouchMove, handleTouchEnd, handleTouchCancel])
+  }, [isMobile, handleTouchStart, handleTouchMove, handleTouchEnd, handleTouchCancel])
 
   return { isMobile }
 }
