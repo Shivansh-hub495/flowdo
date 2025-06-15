@@ -78,9 +78,9 @@ const SignupForm: React.FC = () => {
 
         <Card className="auth-glass auth-card-enter border-white/10 shadow-2xl">
           <CardContent className="pt-6">
-            {/* Google Sign In Button - Temporarily disabled until credentials are configured */}
-            {/* <GoogleSignInButton disabled={isLoading} />
-            <AuthDivider /> */}
+            {/* Google Sign In Button */}
+            <GoogleSignInButton disabled={isLoading} />
+            <AuthDivider />
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
