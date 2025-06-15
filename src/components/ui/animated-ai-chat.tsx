@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import * as React from "react"
-import { useIsMobile } from "@/hooks/use-mobile"
 
 // Simple text formatter for AI responses
 function formatAIResponse(text: string) {
@@ -159,7 +158,6 @@ export function AnimatedAIChat() {
     const [showCommandPalette, setShowCommandPalette] = useState(false);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [conversation, setConversation] = useState<ChatMessage[]>([]);
-    const isMobile = useIsMobile();
 
     // Debug: Log when component mounts
     useEffect(() => {
@@ -610,70 +608,67 @@ export function AnimatedAIChat() {
 
                         <div className="px-4 py-3">
                             <div className="flex items-center gap-3">
-                                {/* Hide file attachment and web search buttons on mobile */}
-                                {!isMobile && (
-                                    <div className="flex items-center gap-2">
-                                        <div className="relative">
-                                            <input
-                                                type="file"
-                                                multiple
-                                                accept="image/*,application/pdf,text/*"
-                                                onChange={(e) => {
-                                                    if (e.target.files) {
-                                                        const files = Array.from(e.target.files);
-                                                        Promise.all(files.map(async (file) => {
-                                                            try {
-                                                                const { processFile } = await import('@/lib/file-utils');
-                                                                return await processFile(file);
-                                                            } catch (error) {
-                                                                console.error('Error processing file:', error);
-                                                                return null;
-                                                            }
-                                                        })).then(processedFiles => {
-                                                            const validFiles = processedFiles.filter(f => f !== null) as FileAttachment[];
-                                                            handleFilesSelected(validFiles);
-                                                        });
-                                                    }
-                                                }}
-                                                className="hidden"
-                                                id="file-upload"
-                                            />
-                                            <motion.button
-                                                type="button"
-                                                onClick={() => document.getElementById('file-upload')?.click()}
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
-                                                className="p-2 text-white/50 hover:text-white/90 rounded-lg transition-all relative group bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05]"
-                                                title="Attach file"
-                                            >
-                                                <Paperclip className="w-4 h-4" />
-                                            </motion.button>
-                                        </div>
+                                <div className="hidden md:flex items-center gap-2">
+                                    <div className="relative">
+                                        <input
+                                            type="file"
+                                            multiple
+                                            accept="image/*,application/pdf,text/*"
+                                            onChange={(e) => {
+                                                if (e.target.files) {
+                                                    const files = Array.from(e.target.files);
+                                                    Promise.all(files.map(async (file) => {
+                                                        try {
+                                                            const { processFile } = await import('@/lib/file-utils');
+                                                            return await processFile(file);
+                                                        } catch (error) {
+                                                            console.error('Error processing file:', error);
+                                                            return null;
+                                                        }
+                                                    })).then(processedFiles => {
+                                                        const validFiles = processedFiles.filter(f => f !== null) as FileAttachment[];
+                                                        handleFilesSelected(validFiles);
+                                                    });
+                                                }
+                                            }}
+                                            className="hidden"
+                                            id="file-upload"
+                                        />
                                         <motion.button
                                             type="button"
-                                            onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+                                            onClick={() => document.getElementById('file-upload')?.click()}
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
-                                            className={cn(
-                                                "p-2 rounded-lg transition-all relative group border border-white/[0.05]",
-                                                webSearchEnabled
-                                                    ? "bg-violet-500/20 text-violet-300 border-violet-400/30"
-                                                    : "bg-white/[0.03] hover:bg-white/[0.08] text-white/50 hover:text-white/90"
-                                            )}
-                                            title={`Web search ${webSearchEnabled ? 'enabled' : 'disabled'}`}
+                                            className="p-2 text-white/50 hover:text-white/90 rounded-lg transition-all relative group bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05]"
+                                            title="Attach file"
                                         >
-                                            <Search className="w-4 h-4" />
-                                            {webSearchEnabled && (
-                                                <motion.div
-                                                    className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full"
-                                                    initial={{ scale: 0 }}
-                                                    animate={{ scale: 1 }}
-                                                    exit={{ scale: 0 }}
-                                                />
-                                            )}
+                                            <Paperclip className="w-4 h-4" />
                                         </motion.button>
                                     </div>
-                                )}
+                                    <motion.button
+                                        type="button"
+                                        onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className={cn(
+                                            "p-2 rounded-lg transition-all relative group border border-white/[0.05]",
+                                            webSearchEnabled
+                                                ? "bg-violet-500/20 text-violet-300 border-violet-400/30"
+                                                : "bg-white/[0.03] hover:bg-white/[0.08] text-white/50 hover:text-white/90"
+                                        )}
+                                        title={`Web search ${webSearchEnabled ? 'enabled' : 'disabled'}`}
+                                    >
+                                        <Search className="w-4 h-4" />
+                                        {webSearchEnabled && (
+                                            <motion.div
+                                                className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full"
+                                                initial={{ scale: 0 }}
+                                                animate={{ scale: 1 }}
+                                                exit={{ scale: 0 }}
+                                            />
+                                        )}
+                                    </motion.button>
+                                </div>
                                 <Textarea
                                     ref={textareaRef}
                                     value={value}
@@ -709,10 +704,8 @@ export function AnimatedAIChat() {
                                     whileTap={{ scale: 0.98 }}
                                     disabled={isTyping || !value.trim()}
                                     className={cn(
-                                        "rounded-lg text-sm font-medium transition-all",
-                                        "flex items-center shadow-lg",
-                                        // Mobile: icon-only button with padding
-                                        isMobile ? "p-3" : "px-4 py-2 gap-2",
+                                        "md:px-4 px-2 py-2 rounded-lg text-sm font-medium transition-all",
+                                        "flex items-center gap-2 shadow-lg",
                                         value.trim()
                                             ? "bg-gradient-to-r from-white to-gray-100 text-gray-800 shadow-white/20 hover:from-gray-50 hover:to-white border border-white/20"
                                             : "bg-white/[0.05] text-white/40 border border-white/[0.05] cursor-not-allowed"
@@ -724,8 +717,7 @@ export function AnimatedAIChat() {
                                     ) : (
                                         <SendIcon className="w-4 h-4" />
                                     )}
-                                    {/* Hide "Send" text on mobile */}
-                                    {!isMobile && <span>Send</span>}
+                                    <span className="hidden md:inline">Send</span>
                                 </motion.button>
                             </div>
                         </div>
