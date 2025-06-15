@@ -34,6 +34,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [hasShownWelcome, setHasShownWelcome] = useState(false);
 
   useEffect(() => {
     // Get initial session
@@ -64,13 +65,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Only show welcome toast for actual sign-ins, not initial session restoration
-        if (event === 'SIGNED_IN' && !isInitialLoad) {
+        // Only show welcome toast for actual sign-ins, not initial session restoration or page refreshes
+        if (event === 'SIGNED_IN' && !isInitialLoad && !hasShownWelcome) {
+          setHasShownWelcome(true);
           toast({
             title: "Welcome!",
             description: "You have been signed in successfully.",
           });
         } else if (event === 'SIGNED_OUT') {
+          setHasShownWelcome(false); // Reset the flag when user signs out
           toast({
             title: "Signed out",
             description: "You have been signed out successfully.",
@@ -80,7 +83,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     );
 
     return () => subscription.unsubscribe();
-  }, [isInitialLoad]);
+  }, [isInitialLoad, hasShownWelcome]);
 
   const signUp = async (email: string, password: string, fullName?: string) => {
     try {
