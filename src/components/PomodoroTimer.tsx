@@ -15,6 +15,9 @@ interface PomodoroTimerProps {
 const PomodoroTimer: React.FC<PomodoroTimerProps> = ({ selectedTask, onBack }) => {
   const isMobile = useIsMobile();
 
+  // Check if this is being rendered from a task (has selectedTask) vs navigation menu
+  const isTaskFocus = !!selectedTask;
+
   // Open Clock.html in the same page with task information
   const startFocusSession = async () => {
     const taskTitle = selectedTask?.title || '';
@@ -31,7 +34,7 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({ selectedTask, onBack }) =
   };
 
   return (
-    <div className={`${isMobile ? 'p-2' : 'p-6'} flex items-center justify-center min-h-[80vh]`}>
+    <div className={isTaskFocus ? '' : `${isMobile ? 'p-2' : 'p-6'} flex items-center justify-center min-h-screen`}>
       <Card className={`bg-slate-900/50 border-slate-700/50 shadow-xl w-full ${isMobile ? 'max-w-xs mx-2' : 'max-w-md'}`}>
         <CardHeader className={`${isMobile ? 'pb-2 px-3' : 'pb-4'}`}>
           <div className={`flex ${isMobile ? 'flex-col space-y-3' : 'justify-between items-center'}`}>

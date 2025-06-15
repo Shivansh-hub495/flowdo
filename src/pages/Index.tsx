@@ -72,11 +72,13 @@ const MainContent = ({
 
   if (showPomodoro) {
     return (
-      <PomodoroTimer
-        selectedTask={selectedTask}
-        onComplete={handlePomodoroComplete}
-        onBack={handleBackFromPomodoro}
-      />
+      <div className="fixed inset-0 flex items-center justify-center bg-background z-50">
+        <PomodoroTimer
+          selectedTask={selectedTask}
+          onComplete={handlePomodoroComplete}
+          onBack={handleBackFromPomodoro}
+        />
+      </div>
     );
   }
 
