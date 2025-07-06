@@ -271,14 +271,23 @@ const TodayView: React.FC<TodayViewProps> = ({ onStartPomodoro }) => {
             <div className="grid grid-cols-1">
               <Button
                 onClick={startFocusSession}
-                className={`bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 border-0 text-white font-medium transition-all duration-300 hover:shadow-lg hover:shadow-violet-500/25 touch-action-manipulation ${
+                className={`bg-red-600 hover:bg-red-700 active:bg-red-800 border-0 text-white font-bold transition-all duration-150 touch-action-manipulation transform translate-y-[-4px] hover:translate-y-[-6px] active:translate-y-[-1px] shadow-[0_8px_0_#b91c1c,0_12px_20px_rgba(220,38,38,0.5)] hover:shadow-[0_10px_0_#b91c1c,0_16px_24px_rgba(220,38,38,0.6)] active:shadow-[0_3px_0_#b91c1c,0_6px_12px_rgba(220,38,38,0.4)] animate-pulse ${
                   isMobile
-                    ? 'h-12 text-sm min-h-[44px]'
-                    : 'h-14 hover:scale-105'
+                    ? 'h-14 text-lg min-h-[56px] rounded-sm'
+                    : 'h-16 text-xl rounded-sm'
                 }`}
+                style={{
+                  boxShadow: `
+                    0 8px 0 #b91c1c,
+                    0 12px 20px rgba(220, 38, 38, 0.5),
+                    0 0 20px rgba(239, 68, 68, 0.6),
+                    0 0 40px rgba(239, 68, 68, 0.4),
+                    0 0 60px rgba(239, 68, 68, 0.2)
+                  `,
+                  animation: 'glow-pulse 2s ease-in-out infinite alternate'
+                }}
               >
-                <Play size={isMobile ? 12 : 14} className="mr-2" />
-                <span>Start Focus Session</span>
+                <span>Just Start</span>
               </Button>
             </div>
           </CardContent>
