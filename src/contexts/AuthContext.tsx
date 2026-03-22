@@ -65,14 +65,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Only show welcome toast for actual sign-ins, not initial session restoration or page refreshes
-        if (event === 'SIGNED_IN' && !isInitialLoad && !hasShownWelcome) {
-          setHasShownWelcome(true);
-          toast({
-            title: "Welcome!",
-            description: "You have been signed in successfully.",
-          });
-        } else if (event === 'SIGNED_OUT') {
+        // Handle sign out event
+        if (event === 'SIGNED_OUT') {
           setHasShownWelcome(false); // Reset the flag when user signs out
           toast({
             title: "Signed out",

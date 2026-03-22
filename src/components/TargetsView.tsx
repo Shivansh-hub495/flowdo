@@ -9,10 +9,12 @@ import AddTargetDialog from '@/components/AddTargetDialog';
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/components/ui/carousel';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTargetsContext } from '@/pages/Index';
+import { useCalendar } from '@/contexts/CalendarContext';
 
 const TargetsView: React.FC = () => {
   const { toast } = useToast();
   const { targets, loading, toggleTargetCompletion, deleteTarget, getTargetsByType, fetchTargets } = useTargets();
+  const { getEventsForDate } = useCalendar();
   const isMobile = useIsMobile();
   const targetsContext = useTargetsContext();
 
@@ -33,6 +35,40 @@ const TargetsView: React.FC = () => {
   const handleTargetCreated = async () => {
     // Force refresh the targets data
     await fetchTargets();
+  };
+
+  // Helper function to get events for target dates
+  const getEventsForTargetType = (targetType: TargetType['target_type']) => {
+    const today = new Date();
+    let targetDate: string;
+
+    switch (targetType) {
+      case 'tomorrow':
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        targetDate = tomorrow.toISOString().split('T')[0];
+        break;
+      case 'week':
+        // Get events for the rest of this week
+        const endOfWeek = new Date(today);
+        endOfWeek.setDate(today.getDate() + (7 - today.getDay()));
+        targetDate = endOfWeek.toISOString().split('T')[0];
+        break;
+      case 'month':
+        // Get events for the end of this month
+        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        targetDate = endOfMonth.toISOString().split('T')[0];
+        break;
+      case 'year':
+        // Get events for the end of this year
+        const endOfYear = new Date(today.getFullYear(), 11, 31);
+        targetDate = endOfYear.toISOString().split('T')[0];
+        break;
+      default:
+        return [];
+    }
+
+    return getEventsForDate(targetDate);
   };
 
   // Carousel navigation effects
@@ -272,14 +308,53 @@ const TargetsView: React.FC = () => {
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
             <p className="text-muted-foreground mt-2 text-sm">Loading...</p>
           </div>
-        ) : targets.length === 0 ? (
-          <div className="text-center py-8">
-            <Target className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground text-sm">No targets yet</p>
-            <p className="text-xs text-muted-foreground">Add a target to get started!</p>
-          </div>
         ) : (
-          targets.map(renderTargetCard)
+          <>
+            {/* Targets */}
+            {targets.length === 0 ? (
+              <div className="text-center py-8">
+                <Target className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground text-sm">No targets yet</p>
+                <p className="text-xs text-muted-foreground">Add a target to get started!</p>
+              </div>
+            ) : (
+              targets.map(renderTargetCard)
+            )}
+
+            {/* Calendar Events for this target type */}
+            {(() => {
+              const events = getEventsForTargetType(type);
+              return events.length > 0 ? (
+                <div className="mt-4 pt-4 border-t border-slate-700/50">
+                  <h4 className={`font-medium text-slate-300 mb-3 flex items-center ${
+                    isMobile ? 'text-xs' : 'text-sm'
+                  }`}>
+                    <Calendar size={isMobile ? 12 : 14} className="mr-2" />
+                    Related Events
+                  </h4>
+                  <div className="space-y-2">
+                    {events.map((event) => (
+                      <div
+                        key={event.id}
+                        className={`p-3 rounded-lg bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 ${
+                          isMobile ? 'text-xs' : 'text-sm'
+                        }`}
+                      >
+                        <div className="font-medium text-blue-300">{event.title}</div>
+                        {event.description && (
+                          <div className="text-slate-400 mt-1">{event.description}</div>
+                        )}
+                        <div className="text-slate-500 mt-1 flex items-center">
+                          <Clock size={10} className="mr-1" />
+                          {event.allDay ? 'All Day' : `${event.startTime} - ${event.endTime}`}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null;
+            })()}
+          </>
         )}
       </CardContent>
     </Card>

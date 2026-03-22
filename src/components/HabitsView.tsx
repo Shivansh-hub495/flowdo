@@ -631,7 +631,7 @@ const HabitsView: React.FC = () => {
             onClick={() => setSelectedHabit(habit)}
           >
             <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
+              <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <CardTitle className="text-lg text-white flex items-center gap-2">
                     <div
@@ -639,19 +639,30 @@ const HabitsView: React.FC = () => {
                       style={{ backgroundColor: habit.color }}
                     />
                     {habit.title}
-                    <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-slate-300 transition-colors ml-auto" />
                   </CardTitle>
                   {habit.description && (
                     <p className="text-sm text-slate-400 mt-1 line-clamp-2">{habit.description}</p>
                   )}
                 </div>
 
-                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedHabit(habit)}
+                    className="text-slate-400 hover:text-white"
+                    aria-label="Open details"
+                    title="Open details"
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleEditHabit(habit)}
                     className="text-slate-400 hover:text-white"
+                    aria-label="Edit"
+                    title="Edit"
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -660,6 +671,8 @@ const HabitsView: React.FC = () => {
                     size="sm"
                     onClick={() => deleteHabit(habit.id)}
                     className="text-slate-400 hover:text-red-400"
+                    aria-label="Delete"
+                    title="Delete"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

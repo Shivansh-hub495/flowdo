@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { checkAndMigrateTargets } from '@/utils/migrateTargets';
 import AddTaskDialog from '@/components/AddTaskDialog';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useCalendar } from '@/contexts/CalendarContext';
 
 interface TodayViewProps {
   onStartPomodoro: (task: Task) => void;
@@ -22,6 +23,7 @@ const TodayView: React.FC<TodayViewProps> = ({ onStartPomodoro }) => {
   const { user } = useAuth();
   const { tasks, loading, toggleTaskCompletion, getTodaysTasks, getCompletedTasks, deleteTask, fetchTasks } = useTasks();
   const { getTodaysPomodoroCount, getTodaysFocusTimeFormatted } = usePomodoroSessions();
+  const { getTodaysEvents, loading: eventsLoading } = useCalendar();
   const isMobile = useIsMobile();
 
   const todaysTasks = getTodaysTasks();
@@ -30,14 +32,31 @@ const TodayView: React.FC<TodayViewProps> = ({ onStartPomodoro }) => {
   // Auto-migrate targets when component loads
   React.useEffect(() => {
     if (user) {
+      console.log('📅 TodayView: Running migration check for user:', user.email);
       checkAndMigrateTargets(user.id).then((result) => {
-        if (result.success && result.migratedCount > 0) {
-          toast({
-            title: "Targets Migrated",
-            description: `${result.migratedCount} target(s) moved to today's tasks!`,
-          });
+        console.log('📅 TodayView: Migration result:', result);
+        if (result.success) {
+          // Show notification for migrated targets
+          if (result.migratedCount > 0) {
+            toast({
+              title: "Targets Migrated",
+              description: `${result.migratedCount} target(s) moved to today's tasks!`,
+            });
+          }
+
+          // Show notification for deleted expired targets
+          if (result.deletedCount && result.deletedCount > 0) {
+            toast({
+              title: "Expired Targets Cleaned",
+              description: `${result.deletedCount} expired target(s) automatically removed.`,
+              variant: "default",
+            });
+          }
+
           // Refresh tasks to show the migrated ones
-          fetchTasks();
+          if (result.migratedCount > 0) {
+            fetchTasks();
+          }
         }
       });
     }
@@ -646,6 +665,74 @@ const TodayView: React.FC<TodayViewProps> = ({ onStartPomodoro }) => {
             )}
           </CardContent>
         </Card>
+
+        {/* Today's Calendar Events */}
+        {(() => {
+          const todaysEvents = getTodaysEvents();
+          return todaysEvents.length > 0 ? (
+            <Card className={`relative overflow-hidden bg-gradient-to-br from-slate-800/40 to-slate-900/40 border border-slate-700/50 ${
+              isMobile ? 'mt-4' : 'mt-6'
+            }`}>
+              <CardHeader className={isMobile ? 'pb-2' : 'pb-4'}>
+                <CardTitle className={`font-semibold text-white flex items-center ${
+                  isMobile ? 'text-base' : 'text-xl'
+                }`}>
+                  <div className={`inline-flex items-center justify-center rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/20 ${
+                    isMobile ? 'w-6 h-6 mr-2' : 'w-8 h-8 mr-3'
+                  }`}>
+                    <Calendar className="text-purple-400" size={isMobile ? 12 : 14} />
+                  </div>
+                  Today's Events
+                </CardTitle>
+              </CardHeader>
+              <CardContent className={isMobile ? 'p-3 pt-0' : 'p-6 pt-0'}>
+                <div className={`${isMobile ? 'space-y-2' : 'space-y-3'}`}>
+                  {todaysEvents.map((event) => (
+                    <div
+                      key={event.id}
+                      className={`group relative border transition-all duration-300 ${
+                        isMobile
+                          ? 'p-3 rounded-lg min-h-[50px]'
+                          : 'p-4 rounded-xl hover:scale-[1.02]'
+                      } bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/30 hover:border-purple-400/50 hover:shadow-lg`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1 min-w-0">
+                          <h4 className={`font-medium text-white truncate ${
+                            isMobile ? 'text-sm' : 'text-base'
+                          }`}>
+                            {event.title}
+                          </h4>
+                          {event.description && (
+                            <p className={`text-slate-400 truncate ${
+                              isMobile ? 'text-xs mt-1' : 'text-sm mt-1'
+                            }`}>
+                              {event.description}
+                            </p>
+                          )}
+                          <div className={`flex items-center gap-3 mt-2 ${
+                            isMobile ? 'text-xs' : 'text-sm'
+                          } text-slate-500`}>
+                            <div className="flex items-center">
+                              <Clock size={isMobile ? 10 : 12} className="mr-1" />
+                              {event.allDay ? 'All Day' : `${event.startTime} - ${event.endTime}`}
+                            </div>
+                            {event.location && (
+                              <div className="flex items-center">
+                                <span className="mr-1">📍</span>
+                                {event.location}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ) : null;
+        })()}
       </div>
     </div>
   );

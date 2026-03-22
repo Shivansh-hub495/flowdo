@@ -311,18 +311,32 @@ export const useTargets = () => {
   // Load targets when user changes and migrate tomorrow targets
   useEffect(() => {
     if (user) {
+      console.log('🎯 TargetsView: Running migration check for user:', user.email);
       // Perform migration check and then fetch targets
       checkAndMigrateTargets(user.id).then((result) => {
-        if (result.success && result.migratedCount > 0) {
-          toast({
-            title: "Targets Migrated",
-            description: `${result.migratedCount} target(s) moved to today's tasks!`,
-          });
+        console.log('🎯 TargetsView: Migration result:', result);
+        if (result.success) {
+          // Show notification for migrated targets
+          if (result.migratedCount > 0) {
+            toast({
+              title: "Targets Migrated",
+              description: `${result.migratedCount} target(s) moved to today's tasks!`,
+            });
+          }
+
+          // Show notification for deleted expired targets
+          if (result.deletedCount && result.deletedCount > 0) {
+            toast({
+              title: "Expired Targets Cleaned",
+              description: `${result.deletedCount} expired target(s) automatically removed.`,
+              variant: "default",
+            });
+          }
         }
         // Always fetch targets after migration check
         fetchTargets();
       }).catch((error) => {
-        console.error('Migration failed:', error);
+        console.error('🎯 TargetsView: Migration failed:', error);
         // Still fetch targets even if migration fails
         fetchTargets();
       });

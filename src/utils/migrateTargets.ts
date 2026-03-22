@@ -2,6 +2,100 @@ import { supabase } from '@/integrations/supabase/client';
 import { hasAlreadyMigratedToday, checkForRecentDuplicates, emergencyDuplicateCleanup } from './migrationSafeguards';
 
 /**
+ * Check if a target has expired based on its type and target_date
+ */
+const isTargetExpired = (targetType: string, targetDate: string): boolean => {
+  const today = new Date();
+  const target = new Date(targetDate);
+
+  // Set both dates to start of day for accurate comparison
+  today.setHours(0, 0, 0, 0);
+  target.setHours(0, 0, 0, 0);
+
+  switch (targetType) {
+    case 'week':
+      // Week targets expire after the target date (end of week)
+      return today > target;
+    case 'month':
+      // Month targets expire after the target date (end of month)
+      return today > target;
+    case 'year':
+      // Year targets expire after the target date (end of year)
+      return today > target;
+    default:
+      return false; // Don't auto-delete tomorrow targets or unknown types
+  }
+};
+
+/**
+ * Delete expired targets for week, month, and year types
+ */
+export const deleteExpiredTargets = async (userId: string) => {
+  try {
+    console.log('Checking for expired targets...');
+
+    // Get all non-tomorrow targets
+    const { data: targets, error: fetchError } = await supabase
+      .from('targets')
+      .select('*')
+      .eq('user_id', userId)
+      .in('target_type', ['week', 'month', 'year']);
+
+    if (fetchError) {
+      throw fetchError;
+    }
+
+    if (!targets || targets.length === 0) {
+      console.log('No week/month/year targets found');
+      return { success: true, deletedCount: 0 };
+    }
+
+    // Filter expired targets
+    const expiredTargets = targets.filter(target =>
+      isTargetExpired(target.target_type, target.target_date)
+    );
+
+    if (expiredTargets.length === 0) {
+      console.log('No expired targets found');
+      return { success: true, deletedCount: 0 };
+    }
+
+    console.log(`Found ${expiredTargets.length} expired targets:`,
+      expiredTargets.map(t => `${t.title} (${t.target_type}, due: ${t.target_date})`));
+
+    // Delete expired targets
+    const targetIds = expiredTargets.map(target => target.id);
+    const { error: deleteError } = await supabase
+      .from('targets')
+      .delete()
+      .eq('user_id', userId)
+      .in('id', targetIds);
+
+    if (deleteError) {
+      throw deleteError;
+    }
+
+    console.log(`Successfully deleted ${expiredTargets.length} expired targets`);
+
+    return {
+      success: true,
+      deletedCount: expiredTargets.length,
+      deletedTargets: expiredTargets.map(t => ({
+        title: t.title,
+        type: t.target_type,
+        targetDate: t.target_date
+      }))
+    };
+  } catch (error) {
+    console.error('Error deleting expired targets:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+};
+
+/**
  * Check if migration is needed and perform it automatically
  * This should be called on app startup
  */
@@ -11,9 +105,16 @@ export const checkAndMigrateTargets = async (userId: string) => {
     const lastMigration = localStorage.getItem(lastMigrationKey);
     const currentDate = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format
 
+    console.log('🔍 Checking automatic migration/cleanup:', {
+      userId: userId.substring(0, 8) + '...',
+      lastMigration,
+      currentDate,
+      shouldRun: lastMigration !== currentDate
+    });
+
     // Only migrate once per day
     if (lastMigration !== currentDate) {
-      console.log('Performing daily target migration check for date:', currentDate);
+      console.log('🚀 Performing daily target migration and cleanup check for date:', currentDate);
 
       // Add a small delay to prevent race conditions if called multiple times
       const migrationLockKey = `migrationLock_${userId}`;
@@ -21,7 +122,7 @@ export const checkAndMigrateTargets = async (userId: string) => {
 
       if (existingLock && Date.now() - parseInt(existingLock) < 10000) { // Increased to 10 seconds
         console.log('Migration already in progress, skipping...');
-        return { success: true, migratedCount: 0, createdTasks: [] };
+        return { success: true, migratedCount: 0, createdTasks: [], deletedCount: 0 };
       }
 
       // Set migration lock with current timestamp
@@ -32,7 +133,7 @@ export const checkAndMigrateTargets = async (userId: string) => {
       if (sessionStorage.getItem(sessionLockKey)) {
         console.log('Migration already completed in this session today, skipping...');
         localStorage.removeItem(migrationLockKey);
-        return { success: true, migratedCount: 0, createdTasks: [] };
+        return { success: true, migratedCount: 0, createdTasks: [], deletedCount: 0 };
       }
 
       try {
@@ -43,12 +144,16 @@ export const checkAndMigrateTargets = async (userId: string) => {
           localStorage.setItem(lastMigrationKey, currentDate);
           sessionStorage.setItem(sessionLockKey, 'completed');
           localStorage.removeItem(migrationLockKey);
-          return { success: true, migratedCount: 0, createdTasks: [] };
+          return { success: true, migratedCount: 0, createdTasks: [], deletedCount: 0 };
         }
 
-        const result = await manuallyMigrateTargets(userId);
+        // First, delete expired targets
+        const deleteResult = await deleteExpiredTargets(userId);
 
-        if (result.success) {
+        // Then, migrate tomorrow targets
+        const migrateResult = await manuallyMigrateTargets(userId);
+
+        if (migrateResult.success) {
           localStorage.setItem(lastMigrationKey, currentDate);
           sessionStorage.setItem(sessionLockKey, 'completed'); // Mark as completed in session
           localStorage.removeItem(migrationLockKey); // Remove lock on success
@@ -56,7 +161,13 @@ export const checkAndMigrateTargets = async (userId: string) => {
           // Run emergency cleanup after migration to catch any edge case duplicates
           setTimeout(() => emergencyDuplicateCleanup(userId), 2000);
 
-          return result;
+          return {
+            success: true,
+            migratedCount: migrateResult.migratedCount,
+            createdTasks: migrateResult.createdTasks,
+            deletedCount: deleteResult.success ? deleteResult.deletedCount : 0,
+            deletedTargets: deleteResult.success ? deleteResult.deletedTargets : undefined
+          };
         }
       } finally {
         // Always remove lock after attempt
@@ -64,12 +175,123 @@ export const checkAndMigrateTargets = async (userId: string) => {
       }
     }
 
-    return { success: true, migratedCount: 0, createdTasks: [] };
+    return { success: true, migratedCount: 0, createdTasks: [], deletedCount: 0 };
   } catch (error) {
     console.error('Error in automatic migration check:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 };
+
+/**
+ * Manually delete expired targets (for testing or manual cleanup)
+ * This function can be called to immediately delete expired targets
+ */
+export const manuallyDeleteExpiredTargets = async (userId: string) => {
+  return await deleteExpiredTargets(userId);
+};
+
+/**
+ * Force migration and cleanup regardless of daily check
+ * This bypasses the localStorage check and runs immediately
+ */
+export const forceTargetMigrationAndCleanup = async (userId: string) => {
+  try {
+    console.log('🔧 Forcing target migration and cleanup for user:', userId.substring(0, 8) + '...');
+
+    // First, delete expired targets
+    const deleteResult = await deleteExpiredTargets(userId);
+    console.log('🗑️ Delete result:', deleteResult);
+
+    // Then, migrate tomorrow targets
+    const migrateResult = await manuallyMigrateTargets(userId);
+    console.log('📋 Migration result:', migrateResult);
+
+    return {
+      success: true,
+      migratedCount: migrateResult.migratedCount,
+      createdTasks: migrateResult.createdTasks,
+      deletedCount: deleteResult.success ? deleteResult.deletedCount : 0,
+      deletedTargets: deleteResult.success ? deleteResult.deletedTargets : undefined
+    };
+  } catch (error) {
+    console.error('❌ Error in forced migration and cleanup:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+};
+
+/**
+ * Global functions for manual operations from browser console
+ */
+if (typeof window !== 'undefined') {
+  // Manual cleanup only
+  (window as any).cleanupExpiredTargets = async () => {
+    try {
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        console.error('No authenticated user found');
+        return;
+      }
+
+      console.log('🔍 Starting manual cleanup for user:', user.email);
+      const result = await deleteExpiredTargets(user.id);
+
+      if (result.success) {
+        console.log(`✅ Cleanup complete! Deleted ${result.deletedCount} expired targets.`);
+        if (result.deletedTargets && result.deletedTargets.length > 0) {
+          console.log('Deleted targets:', result.deletedTargets);
+        }
+      } else {
+        console.error('❌ Cleanup failed:', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error during manual cleanup:', error);
+    }
+  };
+
+  // Force full migration and cleanup (bypasses daily check)
+  (window as any).forceTargetCleanup = async () => {
+    try {
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        console.error('No authenticated user found');
+        return;
+      }
+
+      console.log('🔧 Forcing full migration and cleanup for user:', user.email);
+      const result = await forceTargetMigrationAndCleanup(user.id);
+
+      if (result.success) {
+        console.log(`✅ Force cleanup complete!`);
+        console.log(`   - Migrated: ${result.migratedCount} targets`);
+        console.log(`   - Deleted: ${result.deletedCount} expired targets`);
+      } else {
+        console.error('❌ Force cleanup failed:', result.error);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error during force cleanup:', error);
+    }
+  };
+
+  // Clear localStorage to force next automatic check
+  (window as any).resetTargetMigration = () => {
+    const keys = Object.keys(localStorage).filter(key =>
+      key.includes('targetMigration') || key.includes('migrationLock')
+    );
+    keys.forEach(key => localStorage.removeItem(key));
+    console.log('🔄 Reset migration localStorage keys:', keys);
+  };
+}
 
 /**
  * Manually migrate tomorrow targets to tasks

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Brain, Grid3X3, Timer, BarChart3, Calendar, Menu, User, LogOut, Target, MessageSquare, Crosshair, Trophy } from 'lucide-react';
+import { Brain, Grid3X3, Timer, BarChart3, Calendar, CalendarDays, Menu, User, LogOut, Target, MessageSquare, Crosshair, Trophy, Trash2, ListChecks } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -33,12 +33,15 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ activeView, onVie
     { id: 'today', label: 'Today', icon: Calendar, description: 'Your daily focus' },
     { id: 'matrix', label: 'Matrix', icon: Grid3X3, description: 'Eisenhower quadrants' },
     { id: 'targets', label: 'Targets', icon: Crosshair, description: 'Future planning' },
+    { id: 'calendar', label: 'Calendar', icon: CalendarDays, description: 'Schedule & events' },
     { id: 'notes', label: 'Notes', icon: Brain, description: 'Mind flow' },
     { id: 'pomodoro', label: 'Focus', icon: Timer, description: 'Pomodoro sessions' },
     { id: 'habits', label: 'Habits', icon: Target, description: 'Habit tracking' },
+    { id: 'checklist', label: 'Checklist', icon: ListChecks, description: 'Task checklists' },
     { id: 'stats', label: 'Stats', icon: BarChart3, description: 'Progress tracking' },
     { id: 'achievements', label: 'Achievements', icon: Trophy, description: 'Achievement wall' },
     { id: 'chat', label: 'Chat', icon: MessageSquare, description: 'AI Assistant' },
+    { id: 'cleanup', label: 'Cleanup', icon: Trash2, description: 'Clean expired targets' },
   ];
 
   const getInitials = (name: string) => {

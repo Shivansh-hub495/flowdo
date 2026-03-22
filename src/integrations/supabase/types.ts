@@ -41,6 +41,53 @@ export type Database = {
           updated_at?: string | null
         }
       }
+      calendar_events: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string | null
+          date: string
+          start_time: string
+          end_time: string
+          color: 'blue' | 'green' | 'purple' | 'red' | 'orange' | 'pink'
+          location: string | null
+          attendees: Json
+          all_day: boolean
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          description?: string | null
+          date: string
+          start_time: string
+          end_time: string
+          color?: 'blue' | 'green' | 'purple' | 'red' | 'orange' | 'pink'
+          location?: string | null
+          attendees?: Json
+          all_day?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          description?: string | null
+          date?: string
+          start_time?: string
+          end_time?: string
+          color?: 'blue' | 'green' | 'purple' | 'red' | 'orange' | 'pink'
+          location?: string | null
+          attendees?: Json
+          all_day?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
       habits: {
         Row: {
           id: string
@@ -103,6 +150,41 @@ export type Database = {
           completed_at?: string | null
           log_date?: string | null
           notes?: string | null
+        }
+      }
+      notes: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          content: string | null
+          tags: string[] | null
+          linked_tasks: string[] | null
+          color: 'purple' | 'blue' | 'green' | 'orange' | 'red'
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          content?: string | null
+          tags?: string[] | null
+          linked_tasks?: string[] | null
+          color?: 'purple' | 'blue' | 'green' | 'orange' | 'red'
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          content?: string | null
+          tags?: string[] | null
+          linked_tasks?: string[] | null
+          color?: 'purple' | 'blue' | 'green' | 'orange' | 'red'
+          created_at?: string | null
+          updated_at?: string | null
         }
       }
       pomodoro_sessions: {

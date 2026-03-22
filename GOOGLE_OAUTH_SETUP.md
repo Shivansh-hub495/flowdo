@@ -25,7 +25,7 @@ Google OAuth has been enabled in the Supabase configuration for the FlowDo proje
 5. Configure the OAuth consent screen
 6. Set the application type to "Web application"
 7. Add authorized redirect URIs:
-   - `https://zezswzxhoirxabzdnill.supabase.co/auth/v1/callback`
+   - `https://ftztvabphxehfizoosyh.supabase.co/auth/v1/callback`
    - `http://localhost:8080` (for development)
 
 ### 2. Configure Supabase with Google Credentials

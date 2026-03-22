@@ -60,6 +60,20 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## New Features
+
+### Notes System (v1.0)
+- Added a fully functional notes system with rich text editing capabilities
+- Users can create, edit, and delete notes
+- Notes support rich text formatting including bold, italic, lists, and more
+- Tagging system for organizing notes
+- Color-coded notes for better visual organization
+- Search and filter functionality
+
+### Database Changes
+- Added a new `notes` table to store user notes
+- Run the migration script in `supabase/migrations/003_create_notes_table.sql` to set up the database
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/846a81cd-071d-4ac8-9a30-a3d9af21f9d4) and click on Share -> Publish.
