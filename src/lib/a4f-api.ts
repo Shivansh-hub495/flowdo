@@ -64,7 +64,7 @@ async function performWebSearch(query: string): Promise<string> {
   }
 }
 
-const GEMINI_API_KEY = "AIzaSyCrtkMOzyietUvehdPthI4N-2ZCyFMgtVY";
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
 
 // Test the API key format
