@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react';
-import { BarChart3, TrendingUp, Target, Clock, Calendar, Award, Activity, Zap, Trophy, Brain, Flame, Timer, CheckCircle2, Gauge, Sun, Moon, Star } from 'lucide-react';
+import React from 'react';
+import { BarChart3, TrendingUp, Target, Clock, Calendar, Award, Activity, Zap, Trophy, Brain, Flame, Timer, CheckCircle2, Gauge, Sun, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, Area, AreaChart, ComposedChart, Line, Tooltip } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, Area, AreaChart, ComposedChart, Line } from 'recharts';
 import { usePomodoroSessions } from '@/hooks/usePomodoroSessions';
 import { useStatistics } from '@/hooks/useStatistics';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -106,18 +106,11 @@ const StatsView: React.FC = () => {
     ? Math.round(weeklyStats.totalFocusTime / weeklyStats.totalPomodoros)
     : 0;
 
-  const todayFocusMinutes = getTodaysFocusTimeMinutes();
   const productivityScore = matrixScore;
 
-  const bestDay = useMemo(() => {
-    let best = weeklyChartData[0];
-    for (const day of weeklyChartData) {
-      if (day.focusTime + day.tasks * 0.5 > best.focusTime + best.tasks * 0.5) {
-        best = day;
-      }
-    }
-    return best;
-  }, [weeklyChartData]);
+  const bestDay = weeklyChartData.reduce((best, day) =>
+    day.focusTime + day.tasks * 0.5 > best.focusTime + best.tasks * 0.5 ? day : best
+  , weeklyChartData[0]);
 
   const productivityLevel = productivityScore >= 80 ? 'Peak' : productivityScore >= 60 ? 'High' : productivityScore >= 40 ? 'Moderate' : 'Low';
   const productivityColor = productivityScore >= 80 ? COLORS.green : productivityScore >= 60 ? COLORS.blue : productivityScore >= 40 ? COLORS.orange : COLORS.red;
