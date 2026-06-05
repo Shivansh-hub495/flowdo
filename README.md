@@ -1,233 +1,402 @@
-# FlowDo — Futuristic Productivity Operating System
+<div align="center">
+  <img src="/logo.png" alt="FlowDo Logo" width="80" height="80" />
+  
+  # ⚡ FLOWDO — FUTURISTIC PRODUCTIVITY OS ⚡
+  
+  <p align="center">
+    <b>Your Personal Command Center for Time, Attention & Goals</b>
+  </p>
+  
+  <p align="center">
+    <a href="https://github.com/Shivansh-hub495/flowdo/blob/main/LICENSE">
+      <img src="https://img.shields.io/badge/license-MIT-blueviolet?style=for-the-badge&labelColor=1e1b4b" alt="MIT License" />
+    </a>
+    <a href="https://github.com/Shivansh-hub495/flowdo">
+      <img src="https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge&labelColor=1e1b4b&logo=vite" alt="Build" />
+    </a>
+    <a href="https://react.dev">
+      <img src="https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&labelColor=1e1b4b&logo=react" alt="React 18" />
+    </a>
+    <a href="https://supabase.com">
+      <img src="https://img.shields.io/badge/Supabase-3ecf8e?style=for-the-badge&labelColor=1e1b4b&logo=supabase" alt="Supabase" />
+    </a>
+    <a href="https://tailwindcss.com">
+      <img src="https://img.shields.io/badge/Tailwind_CSS-38bdf8?style=for-the-badge&labelColor=1e1b4b&logo=tailwind-css" alt="Tailwind" />
+    </a>
+    <a href="https://www.typescriptlang.org">
+      <img src="https://img.shields.io/badge/TypeScript-3178c6?style=for-the-badge&labelColor=1e1b4b&logo=typescript" alt="TypeScript" />
+    </a>
+  </p>
+  
+  <br />
+  
+  <p align="center">
+    <b>✦ Open Source &nbsp;·&nbsp; Dark-First &nbsp;·&nbsp; Supabase-Powered &nbsp;·&nbsp; AI-Enhanced ✦</b>
+  </p>
+  
+  <br />
+  
+  <blockquote>
+    <i>"The key is not to prioritize what's on your schedule, but to schedule your priorities."</i><br />
+    <b>— Stephen Covey</b>
+  </blockquote>
+</div>
 
-FlowDo is a full-stack, open-source productivity platform that unifies task management, habit tracking, calendar planning, note-taking, focus timing, AI assistance, gamification, and analytics into a single, beautiful interface.
-
-Designed with a dark-first, glassmorphism aesthetic and powered by Supabase, FlowDo serves as a complete personal command center for managing your time, attention, and goals.
-
----
-
-## Features
-
-### Eisenhower Matrix (Task Management)
-Organize tasks across the four quadrants of the Eisenhower Matrix:
-- **Urgent & Important** — Do Now
-- **Important, Not Urgent** — Schedule
-- **Urgent, Not Important** — Delegate
-- **Neither** — Eliminate
-
-Each task supports:
-- Title, description, and rich notes
-- Priority levels: Low, Medium, High, Critical
-- Status workflow: Todo → In Progress → Blocked → Completed
-- Due dates, estimated time, and tags (JSONB array)
-- Duplicate detection with automatic cleanup (60-second window)
-- Drag-to-complete gesture in the daily dashboard
-
-### Time-Based Targets
-Plan work across four horizons:
-- **Tomorrow** — Next-day tasks (auto-migrate to tasks at midnight)
-- **Week** — Weekly goals
-- **Month** — Monthly objectives
-- **Year** — Annual milestones
-
-Targets auto-migrate: tomorrow's targets become full tasks when a new day begins. Expired targets (week/month/year) are automatically cleaned up on app startup. Migration safeguards prevent duplicate creation via localStorage and sessionStorage checks plus database queries.
-
-### Habit Tracker
-Build and maintain routines with:
-- Daily, weekly, and monthly frequency types
-- Weekly progress visualization (SMTWTFS grid)
-- Streak counter and completion rate tracking
-- Color-coded habits
-- Monthly journal entries per habit
-- Automatic cleanup of old habit data at month boundaries
-
-### Calendar
-- Month and day views with event management
-- Color-coded events (Blue, Green, Purple, Red, Orange, Pink)
-- Event details: title, date, time range, location, attendees, all-day flag
-- Overlay display of tasks and targets alongside calendar events
-
-### Notes System
-Full-featured rich text note-taking powered by ReactQuill:
-- Rich text formatting: bold, italic, lists, headers, text colors, links, images, video embeds, code blocks
-- Color coding: Purple, Blue, Green, Orange, Red
-- Tags as text arrays for organization
-- Search and filter functionality
-- Dedicated routes: `/notes/new` and `/notes/:id`
-- Link notes to tasks via `linked_tasks` (UUID array)
-
-### Pomodoro Focus Timer
-- Launch a standalone flip-clock timer (`Clock.html`) in a new window
-- Pass task context via URL parameters (`task`, `taskId`, `taskDescription`, `authToken`)
-- Log focus and break sessions to the database
-- Track average focus time across sessions
-- Session types: Focus and Break
-
-### AI Assistant (Vikram)
-An intelligent chat interface powered by Google Gemini via the OpenAI-compatible SDK:
-- Natural language conversation with context awareness
-- Web search via DuckDuckGo (with Programmable Search fallback)
-- File attachments: images (inline display), PDFs (text extraction), text and markdown files
-- Command palette: `/clone`, `/search`, `/page`, `/improve`
-- Monte Carlo forecasting for task completion prediction (seed 12345, 95% decay, 100 iterations, 7-day horizon)
-- Calendar, task, and target context injection
-- Built-in connection diagnostics (`testA4FConnection`, `testA4FDirectFetch`)
-- Glowing, animated chat UI with typing indicators and responsive input
-
-### Achievements & Gamification
-- Upload achievement images (max 5MB) to Supabase Storage
-- 21 unlockable badges covering:
-  - Task completion milestones
-  - Habit tracking consistency
-  - Pomodoro session counts
-  - Target creation streaks
-  - And more gamified metrics
-- Image gallery grid layout
-
-### Analytics Dashboard
-Visualize your productivity with Recharts:
-- Weekly focus time (area/bar chart)
-- Eisenhower quadrant distribution (pie chart)
-- Matrix score (weighted calculation)
-- Daily breakdowns
-
-### Daily Checklist
-Pre-defined routine categories with local progress tracking:
-- Before College, Morning Routine, Evening Routine, Health/Fitness, Learning/Skill
-- Persistent via localStorage with daily auto-reset
-- Progress bars for each category
-
-### Authentication
-- Email/password registration and login
-- Google OAuth single sign-on
-- Password reset flow
-- Persistent sessions via Supabase `onAuthStateChange`
-- Protected routes with auth guard
-- Editable user profiles (name, avatar)
+<br />
 
 ---
 
-## Tech Stack
+<br />
 
-| Layer | Technology |
-|---|---|
-| **Build Tool** | Vite 5 + SWC |
-| **Language** | TypeScript |
-| **UI Framework** | React 18 |
-| **Routing** | React Router 6 |
-| **Styling** | Tailwind CSS 3 (dark mode via `class` strategy) |
-| **Component Library** | shadcn/ui (52 Radix-based components) |
-| **State Management** | TanStack Query (React Query) |
-| **Backend / Database** | Supabase (PostgreSQL, Auth, Storage) |
-| **Charts** | Recharts |
-| **Rich Text** | ReactQuill |
-| **Animation** | Framer Motion |
-| **Forms** | React Hook Form + Zod |
-| **AI SDKs** | OpenAI SDK (Gemini-compatible endpoint), Anthropic SDK |
-| **Font** | Montserrat |
+<div align="center">
+  
+  # ✨ THE GRAND UNIFICATION OF PRODUCTIVITY ✨
+  
+  **FlowDo** fuses **task management**, **habit tracking**, **calendar planning**, **rich note-taking**, **Pomodoro focus sessions**, **AI copilot**, **gamification**, and **deep analytics** into a single, breathtaking interface — all wrapped in a **dark glassmorphism aesthetic** with purple-neon accents.
+  
+  Designed for **deep workers**, **creators**, and **executives** who demand more from their tools.
+  
+  <br />
+  
+  <table>
+    <tr>
+      <td align="center" width="200"><b>🎯 Tasks</b><br /><sub>Eisenhower Matrix</sub></td>
+      <td align="center" width="200"><b>📅 Calendar</b><br /><sub>Day & Month Views</sub></td>
+      <td align="center" width="200"><b>📝 Notes</b><br /><sub>Rich Text Editor</sub></td>
+      <td align="center" width="200"><b>⏱️ Pomodoro</b><br /><sub>Flip-Clock Timer</sub></td>
+    </tr>
+    <tr>
+      <td align="center" width="200"><b>🔥 Habits</b><br /><sub>Streak Tracking</sub></td>
+      <td align="center" width="200"><b>🎯 Targets</b><br /><sub>Time Horizons</sub></td>
+      <td align="center" width="200"><b>🤖 AI Chat</b><br /><sub>Gemini Copilot</sub></td>
+      <td align="center" width="200"><b>📊 Stats</b><br /><sub>Analytics Engine</sub></td>
+    </tr>
+  </table>
+  
+</div>
+
+<br />
 
 ---
 
-## Architecture
+<br />
 
-### Routing
-| Path | Component | Auth Required |
-|---|---|---|
-| `/` | Main app shell with 12 views | Yes |
-| `/profile` | User profile settings | Yes |
-| `/notes/new` | New note editor | Yes |
-| `/notes/:id` | Edit existing note | Yes |
-| `/auth/login` | Login form | No |
-| `/auth/signup` | Signup form | No |
-| `/auth/forgot-password` | Password reset | No |
+<div align="center">
+  
+  # 🔮 FEATURES — EVERY TOOL A MASTERPIECE 🔮
 
-### View System
-The main app shell (`Index.tsx`) uses a stateful `activeView` string to render 12 views in the same layout:
+</div>
 
-| # | View | Key | Component |
-|---|---|---|---|
-| 1 | Today Dashboard | `today` | `TodayView` |
-| 2 | Eisenhower Matrix | `matrix` | `EisenhowerMatrix` |
-| 3 | Targets | `targets` | `TargetsView` |
-| 4 | Calendar | `calendar` | `CalendarView` |
-| 5 | Notes | `notes` | `NotesView` |
-| 6 | Note Editor | `notes-editor` | `NoteEditor` |
-| 7 | Pomodoro | `pomodoro` | `PomodoroTimer` |
-| 8 | Habits | `habits` | `HabitsView` |
-| 9 | Checklist | `checklist` | `ChecklistView` |
-| 10 | Statistics | `stats` | `StatsView` |
-| 11 | Achievements | `achievements` | `AchievementsView` |
-| 12 | AI Chat | `chat` | `ChatView` |
+<br />
 
-### Data Flow
+## 🧠 **Eisenhower Matrix** — *Task Management Reimagined*
+
+Organize your world across **four strategic quadrants**:
+
+| Quadrant | Action | Color |
+|:---------|:-------|:------|
+| 🔴 **Urgent & Important** | **DO NOW** | `#ef4444` — Crisis Zone |
+| 🟡 **Important, Not Urgent** | **SCHEDULE** | `#f59e0b` — Growth Zone |
+| 🔵 **Urgent, Not Important** | **DELEGATE** | `#3b82f6` — Distraction Zone |
+| ⚪ **Neither** | **ELIMINATE** | `#6b7280` — Waste Zone |
+
+Every task is a **first-class citizen** with:
+- **Priority Spectrum** — Low → Medium → High → Critical
+- **Status Pipeline** — Todo ➜ In Progress ➜ Blocked ➜ Completed
+- **Rich Metadata** — Due dates, estimated time, JSONB tags, inline notes
+- **Smart Duplicate Detection** — Auto-cleans duplicates within a 60-second window
+- **Gesture Controls** — Drag-to-complete on mobile
+
+---
+
+## 🎯 **Time-Based Targets** — *Four Horizons of Planning*
+
+| Horizon | Scope | Auto-Behavior |
+|:--------|:------|:--------------|
+| 🌅 **Tomorrow** | Next 24h | ⚡ Auto-migrates to full Tasks at midnight |
+| 📆 **Week** | 7 days | 🧹 Auto-cleaned on expiry |
+| 📅 **Month** | 30 days | 🧹 Auto-cleaned on expiry |
+| 🗺️ **Year** | 365 days | 🧹 Auto-cleaned on expiry |
+
+**Migration Engine** — A sophisticated state machine that:
+- Converts "tomorrow" targets into full-fledged tasks at day boundary
+- Uses **triple-redundant safeguards** (localStorage + sessionStorage + DB query) to prevent duplicate creation
+- Exposes global debugging utilities: `window.cleanupExpiredTargets()`, `window.forceTargetCleanup()`, `window.resetTargetMigration()`
+- Runs emergency duplicate cleanup 2 seconds post-migration
+
+---
+
+## 🔥 **Habit Tracker** — *Built for Consistency*
+
+| Feature | Description |
+|:--------|:------------|
+| **Frequency Types** | Daily · Weekly · Monthly |
+| **Visual Progress** | SMTWTFS grid with daily reset |
+| **Streak Counter** | Consecutive days tracker |
+| **Completion Rate** | Percentage-based analytics |
+| **Monthly Journals** | Per-habit reflective entries |
+| **Auto-Cleanup** | Boundary-aware data pruning |
+
+---
+
+## 📅 **Calendar** — *Your Temporal Canvas*
+
+- **Dual View** — Month overview + Day granularity
+- **6 Event Colors** — `#3b82f6` Blue · `#22c55e` Green · `#8b5cf6` Purple · `#ef4444` Red · `#f97316` Orange · `#ec4899` Pink
+- **Rich Events** — Title, date, time range, location, attendees, all-day flag
+- **Overlay System** — Tasks and targets rendered alongside calendar events in unified timeline
+
+---
+
+## 📝 **Notes System** — *Where Ideas Flow*
+
+Powered by **ReactQuill** — a full rich-text editing engine:
+
+| Capability | Details |
+|:-----------|:--------|
+| **Formatting** | Bold, Italic, Lists, Headers, Text Colors |
+| **Media** | Images, Links, Video Embeds, Code Blocks |
+| **Organization** | 5 color themes, tag-based filtering |
+| **Deep Linking** | `linked_tasks` UUID array ties notes to tasks |
+| **Routing** | Dedicated `/notes/new` and `/notes/:id` |
+
+---
+
+## ⏱️ **Pomodoro Timer** — *The Flip-Clock Experience*
+
+- Launches a **standalone HTML flip-clock** (`Clock.html`) in its own window
+- Passes **task context** via URL parameters: `?task=...&taskId=...&taskDescription=...&authToken=...`
+- Persists every session to the `pomodoro_sessions` table
+- Tracks **average focus time** across your history
+- Session types: **Focus** 🎯 & **Break** ☕
+
+---
+
+## 🤖 **Vikram AI Copilot** — *Your Intelligence Amplifier*
+
+> *"The best way to predict the future is to create it."*
+
+| Capability | Implementation |
+|:-----------|:---------------|
+| **LLM Engine** | Google Gemini via OpenAI-compatible SDK |
+| **Web Search** | DuckDuckGo primary · Programmable Search fallback |
+| **File Analysis** | Images (inline), PDFs (text extraction), `.txt`/`.md` |
+| **Command Palette** | `/clone` · `/search` · `/page` · `/improve` |
+| **Predictive Analytics** | Monte Carlo simulation (seed: 12345, decay: 0.95, 100 iterations, 7-day horizon) |
+| **Context Injection** | Live calendar, task, and target data |
+| **Diagnostics** | Built-in `testA4FConnection()` and `testA4FDirectFetch()` |
+
+---
+
+## 🏆 **Gamification** — *21 Badges to Unlock*
+
+| Badge Category | Example | Criteria |
+|:---------------|:--------|:---------|
+| 🎯 **Focus** | Focus Master | 10 Pomodoros in a day |
+| 🏆 **Excellence** | Matrix Maestro | 90+ matrix score |
+| 🔥 **Consistency** | Streak Keeper | 7-day focus streak |
+| ⚡ **Intensity** | Deep Worker | 25+ hours focus / week |
+| 💪 **Output** | Task Crusher | 50+ tasks completed / week |
+| 👑 **Mastery** | Consistency King | Focus every day for a week |
+
+Badges are stored with custom images in **Supabase Storage** (`achievement-images` bucket).
+
+---
+
+## 📊 **Analytics Dashboard** — *Data That Demands Action*
+
+| Visualization | Type | Insight |
+|:--------------|:-----|:--------|
+| **Focus & Tasks Trend** | Composed Chart (Area + Bar + Line) | Multi-metric weekly view |
+| **Eisenhower Distribution** | Donut Pie Chart + Progress Bars | Quadrant balance |
+| **Task Flow** | Grouped Bar Chart | Created vs Completed |
+| **Completion Rate** | Area Chart | Daily % trend |
+| **Productivity Score** | SVG Circular Gauge | Weighted aggregate (0–100) |
+| **Daily Breakdown** | 7-column heat bars | Per-day micro view |
+
+---
+
+<div align="center">
+  
+  # 🏗️ ADVANCED ARCHITECTURAL FEATURES 🏗️
+
+</div>
+
+### 🧠 **AI Copilot Integration**
+> Core chat architecture designed to seamlessly stream LLM responses based on live user metrics. The AI assistant (Vikram) has context-aware access to your tasks, habits, calendar, and focus data — enabling it to provide hyper-personalized productivity advice, forecast completion timelines via Monte Carlo simulation, and execute commands through a natural language interface.
+
+### 🔐 **Token-Isolated Sub-Modules**
+> Secure JWT-based token handshakes passing persistent state to standalone engines (like the Pomodoro Flipping Clock). The `Clock.html` operates as a completely independent runtime — launched in a separate browser window — yet maintains authenticated context through cryptographically signed URL parameters, enabling autonomous session logging without re-authentication.
+
+### 🗄️ **Complex Data Persistence**
+> High-fidelity data layer powered by Supabase to track monthly performance analytics, streak counters, and nested routine matrices. The data architecture spans 10 interlinked PostgreSQL tables with real-time subscriptions, RLS policies per user, and storage buckets for user-generated content — all orchestrated through TanStack Query's optimistic update and cache invalidation engine.
+
+### 🔄 **Self-Healing Migration Engine**
+> The targets-to-tasks migration system implements a triple-redundant safeguard layer (localStorage + sessionStorage + database query) preventing duplicate creation across browser sessions, tab instances, and concurrent API calls. Expired targets are automatically detected and pruned on app bootstrap with emergency cleanup fallbacks.
+
+### 📡 **Realtime Synchronization**
+> Database changes on `targets` and `tasks` tables are published via Supabase Realtime, enabling instant UI updates across all connected clients without manual refresh.
+
+<br />
+
+---
+
+<div align="center">
+  
+  # 🛠️ THE BLUEPRINT — TECHNOLOGY STACK 🛠️
+
+</div>
+
+| Layer | Technology | Badge |
+|:------|:-----------|:------|
+| ⚡ **Build Tool** | Vite 5 + SWC | ![Vite](https://img.shields.io/badge/Vite_5-646cff?logo=vite) |
+| 📘 **Language** | TypeScript | ![TS](https://img.shields.io/badge/TypeScript-3178c6?logo=typescript) |
+| ⚛️ **UI Framework** | React 18 | ![React](https://img.shields.io/badge/React_18-61dafb?logo=react) |
+| 🧭 **Routing** | React Router 6 | ![React Router](https://img.shields.io/badge/React_Router_6-ca4245?logo=react-router) |
+| 🎨 **Styling** | Tailwind CSS 3 + Montserrat | ![Tailwind](https://img.shields.io/badge/Tailwind_3-38bdf8?logo=tailwind-css) |
+| 🧩 **Components** | shadcn/ui (52 Radix primitives) | ![shadcn](https://img.shields.io/badge/shadcn/ui-000000?logo=shadcnui) |
+| 🔄 **State** | TanStack Query | ![TanStack](https://img.shields.io/badge/TanStack_Query-ff4154?logo=react-query) |
+| 🗄️ **Backend** | Supabase (PostgreSQL + Auth + Storage) | ![Supabase](https://img.shields.io/badge/Supabase-3ecf8e?logo=supabase) |
+| 📈 **Charts** | Recharts | ![Recharts](https://img.shields.io/badge/Recharts-22b5bf) |
+| ✍️ **Rich Text** | ReactQuill | ![Quill](https://img.shields.io/badge/ReactQuill-1e1e1e) |
+| 🌀 **Animation** | Framer Motion | ![Framer](https://img.shields.io/badge/Framer_Motion-0055ff?logo=framer) |
+| 📝 **Forms** | React Hook Form + Zod | ![RHF](https://img.shields.io/badge/RHF_+_Zod-ec5990?logo=react-hook-form) |
+| 🤖 **AI SDKs** | OpenAI SDK + Anthropic SDK | ![AI](https://img.shields.io/badge/Gemini_+_Claude-8b5cf6) |
+
+---
+
+<div align="center">
+  
+  # 📂 PROJECT ANATOMY 📂
+
+</div>
+
 ```
-React Components → Custom Hooks (useTasks, useHabits, etc.)
-  → TanStack Query (caching, refetching)
-    → Supabase JS Client (CRUD operations)
-      → PostgreSQL Database (public schema)
-```
-
-### Auth Flow
-```
-Supabase Auth (email/password or Google OAuth)
-  → onAuthStateChange listener in AuthContext
-    → ProtectedRoute checks context
-      → Renders Index or redirects to /auth/login
+flowdo/
+├── 📁 public/                          # Static Assets
+│   ├── ⏰ Clock.html                   # Standalone Pomodoro Flip-Clock (3673 lines)
+│   └── 🔊 sounds/                      # Timer alerts
+├── 📁 src/
+│   ├── 🚀 main.tsx                     # Application Entry Point
+│   ├── 🧭 App.tsx                      # Root Router Definitions
+│   ├── 🎨 index.css                    # Design System (glassmorphism, animations, scrollbars)
+│   ├── 📦 contexts/
+│   │   ├── 🔐 AuthContext.tsx          # Auth State Provider (Supabase sessions)
+│   │   └── 📅 CalendarContext.tsx      # Calendar Events Context
+│   ├── 🔌 integrations/supabase/
+│   │   ├── client.ts                   # Supabase Singleton
+│   │   └── types.ts                    # Full DB Typings (10 tables)
+│   ├── 🧰 lib/
+│   │   ├── utils.ts                    # cn() — clsx + tailwind-merge
+│   │   ├── a4f-api.ts                  # AI Chat Engine (Gemini + Search + Monte Carlo)
+│   │   └── file-utils.ts               # Image/PDF/Text Processing
+│   ├── 🪝 hooks/
+│   │   ├── useTasks.ts                 # Task CRUD + Duplicate Cleanup
+│   │   ├── useHabits.ts               # Habit CRUD + Streak Tracking
+│   │   ├── useTargets.ts              # Target CRUD + Auto-Migration
+│   │   ├── useNotes.ts                # Notes CRUD
+│   │   ├── useCalendarEvents.ts       # Calendar CRUD
+│   │   ├── useAchievements.ts         # Achievement CRUD + Image Upload
+│   │   ├── usePomodoroSessions.ts     # Session Logging + Analytics
+│   │   ├── useStatistics.ts           # Stats Engine + 21 Badges
+│   │   └── use-mobile.tsx             # Mobile Detection + Swipe
+│   ├── 📄 pages/
+│   │   ├── 🏠 Index.tsx               # Main Shell (12 views)
+│   │   ├── 👤 Profile.tsx             # User Profile
+│   │   └── 🔑 auth/                   # Login · Signup · Forgot Password
+│   ├── 🧩 components/
+│   │   ├── 📍 Navigation.tsx           # 11-Item Sidebar
+│   │   ├── 🛡️ ProtectedRoute.tsx      # Auth Guard
+│   │   ├── 📋 TodayView.tsx           # Daily Dashboard
+│   │   ├── 🧮 EisenhowerMatrix.tsx    # 4-Quadrant Board
+│   │   ├── 🎯 TargetsView.tsx         # Time Planner
+│   │   ├── 📅 CalendarView.tsx        # Month / Day Views
+│   │   ├── 📝 NotesView.tsx           # Notes List + Search
+│   │   ├── ✍️ NoteEditor.tsx           # Rich Text Editor
+│   │   ├── ⏱️ PomodoroTimer.tsx       # Focus Launcher
+│   │   ├── 🔥 HabitsView.tsx          # Habit Tracker
+│   │   ├── ✅ ChecklistView.tsx        # Daily Routines
+│   │   ├── 🤖 ChatView.tsx            # AI Interface
+│   │   ├── 📊 StatsView.tsx           # Analytics Dashboard
+│   │   ├── 🏆 AchievementsView.tsx    # Badge Gallery
+│   │   └── 🧹 CleanupExpiredTargets.tsx # Auto-Cleanup
+│   └── 🛠️ utils/
+│       ├── migrateTargets.ts          # Migration Engine
+│       ├── migrationSafeguards.ts     # Triple-Redundant Dupe Prevention
+│       ├── taskCleanup.ts             # Duplicate Task Cleaner
+│       └── habitCleanup.ts            # Month-Boundary Cleanup
+├── 📁 supabase/
+│   ├── config.toml                    # Project Config
+│   └── 📜 migrations/                 # DB Migrations
+├── 📄 restore_public_schema.sql       # Complete Schema Dump
+├── 📦 package.json
+├── ⚡ vite.config.ts
+├── 📘 tsconfig.json
+├── 🎨 tailwind.config.ts
+└── ⚙️  eslint.config.js
 ```
 
 ---
 
-## Database Schema
+<div align="center">
+  
+  # 🧬 DATA ARCHITECTURE — 10 TABLES, ONE ECOSYSTEM 🧬
 
-### Tables
+</div>
 
-| Table | Purpose | Key Columns |
-|---|---|---|
-| `profiles` | User profiles | `id`, `email`, `full_name`, `avatar_url` |
-| `tasks` | Eisenhower tasks | `title`, `description`, `quadrant`, `priority`, `due_date`, `tags`, `estimated_time`, `status`, `completed`, `notes` |
-| `targets` | Time-based targets | `title`, `target_type` (tomorrow/week/month/year), `target_date`, `quadrant`, `priority`, `completed` |
-| `calendar_events` | Calendar entries | `title`, `date`, `start_time`, `end_time`, `color`, `location`, `attendees`, `all_day` |
-| `habits` | Habit definitions | `title`, `color`, `target_frequency`, `frequency_type` (daily/weekly/monthly), `is_active` |
-| `habit_logs` | Daily habit check-ins | `habit_id`, `user_id`, `completed_at`, `log_date` |
-| `habit_monthly_journals` | Monthly habit reflections | `habit_id`, `user_id`, `month_year`, `journal_content` |
-| `pomodoro_sessions` | Focus session logs | `task_id`, `start_time`, `end_time`, `duration_minutes`, `session_type` (focus/break), `completed` |
-| `achievements` | User achievements | `title`, `description`, `image_url`, `achievement_date` |
-| `notes` | Rich text notes | `title`, `content`, `tags` (text[]), `linked_tasks` (uuid[]), `color` |
+| Table | Purpose | Highlights |
+|:------|:--------|:-----------|
+| 👤 `profiles` | User Identity | Auto-created via auth trigger |
+| 📋 `tasks` | Eisenhower Tasks | Quadrant enum, JSONB tags, status workflow |
+| 🎯 `targets` | Time Horizons | Auto-migrate to tasks, auto-cleanup |
+| 📅 `calendar_events` | Events | 6 colors, location, attendees |
+| 🔥 `habits` | Habit Definitions | Daily/Weekly/Monthly frequency |
+| ✅ `habit_logs` | Daily Check-ins | Unique per (habit_id, log_date) |
+| 📓 `habit_monthly_journals` | Reflections | Monthly journal entries |
+| ⏱️ `pomodoro_sessions` | Focus Logs | Focus/Break types, duration tracking |
+| 🏆 `achievements` | Badges | Image upload to Supabase Storage |
+| 📝 `notes` | Rich Text | Tags array, linked_tasks array, 5 colors |
 
-### Storage
-- **Bucket:** `achievement-images` — public per-user folder with RLS policies
-
-### Realtime
-- `targets` and `tasks` tables published for realtime subscriptions
+**Storage Bucket:** `achievement-images` — Public per-user folder with RLS  
+**Realtime:** `targets` + `tasks` — Live subscriptions for instant sync
 
 ---
 
-## Getting Started
+<div align="center">
+  
+  # 🚀 LAUNCH SEQUENCE — GETTING STARTED 🚀
 
-### Prerequisites
-- Node.js 18+ (recommended: install via [nvm](https://github.com/nvm-sh/nvm))
-- npm 9+
-- A Supabase project (free tier works)
+</div>
 
-### Installation
+### 📋 **Prerequisites**
+
+| Requirement | Version |
+|:------------|:--------|
+| 🟢 **Node.js** | 18+ (via [nvm](https://github.com/nvm-sh/nvm)) |
+| 📦 **npm** | 9+ |
+| 🗄️ **Supabase Project** | Free tier works |
+
+### ⚡ **Quick Start**
 
 ```sh
-# Clone the repository
+# Clone the arsenal
 git clone https://github.com/your-org/flowdo.git
 cd flowdo
 
-# Install dependencies
+# Arm the dependencies
 npm install
 
-# Start the development server
+# Ignite the engine
 npm run dev
 ```
 
-The app will be available at `http://localhost:8080`.
+Your command center awaits at **`http://localhost:8080`** 🚀
 
-### Environment Variables
+---
 
-The project uses a `.env` file for configuration (committed to the repo with default values). Create or edit `.env` in the project root:
+### 🔐 **Environment Configuration**
+
+The `.env` file (committed with safe defaults):
 
 ```env
 VITE_SUPABASE_URL=https://your-project.supabase.co
@@ -235,223 +404,154 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 VITE_GEMINI_API_KEY=your-gemini-api-key
 ```
 
-These are consumed via `import.meta.env` in:
-- `src/integrations/supabase/client.ts` — Supabase URL and anon key
-- `src/lib/a4f-api.ts` — Gemini API key
-- `src/vite-env.d.ts` — TypeScript type declarations for all env vars
+Consumed via `import.meta.env` in:
+- `src/integrations/supabase/client.ts`
+- `src/lib/a4f-api.ts`
+- `src/vite-env.d.ts` (typed declarations)
 
-### Database Setup
+### 🗄️ **Database Initialization**
 
-Run the migration files in `supabase/migrations/` against your Supabase project in order:
+Execute migrations in order from `supabase/migrations/`:
 
-1. `001_initial_auth_setup.sql` — Auth triggers, profiles, tasks
-2. `002_calendar_events.sql` — Calendar events table
-3. `003_notes_table.sql` — Notes table
-
-Alternatively, execute `restore_public_schema.sql` for the complete schema restoration.
-
----
-
-## Available Scripts
-
-| Script | Command | Description |
-|---|---|---|
-| `dev` | `vite` | Start dev server with HMR on port 8080 |
-| `build` | `vite build` | Production build |
-| `build:dev` | `vite build --mode development` | Development build |
-| `preview` | `vite preview` | Preview production build |
-| `lint` | `eslint .` | Lint all source files |
-
----
-
-## Project Structure
-
-```
-flowdo/
-├── public/                    # Static assets
-│   ├── Clock.html             # Standalone pomodoro flip-clock timer
-│   ├── sounds/                # Timer alert sounds
-│   └── Notes/                 # Sample files
-├── src/
-│   ├── main.tsx               # Application entry point
-│   ├── App.tsx                # Root component with route definitions
-│   ├── index.css              # Global design system + custom utilities
-│   ├── contexts/
-│   │   ├── AuthContext.tsx     # Authentication state provider
-│   │   └── CalendarContext.tsx # Calendar event context
-│   ├── integrations/supabase/
-│   │   ├── client.ts          # Supabase client singleton
-│   │   └── types.ts           # TypeScript type definitions for all tables
-│   ├── lib/
-│   │   ├── utils.ts           # Utility functions (cn, etc.)
-│   │   ├── a4f-api.ts         # AI chat engine (Gemini + web search)
-│   │   └── file-utils.ts      # File processing utilities
-│   ├── hooks/
-│   │   ├── useTasks.ts        # Task CRUD operations
-│   │   ├── useHabits.ts       # Habit CRUD + log operations
-│   │   ├── useTargets.ts      # Target CRUD + migration
-│   │   ├── useNotes.ts        # Notes CRUD operations
-│   │   ├── useCalendarEvents.ts # Calendar event CRUD
-│   │   ├── useAchievements.ts  # Achievement CRUD + image upload
-│   │   ├── usePomodoroSessions.ts # Pomodoro session tracking
-│   │   ├── useStatistics.ts   # Analytics engine + 21 badge conditions
-│   │   ├── use-toast.ts       # Toast notification system
-│   │   └── use-mobile.tsx     # Mobile detection + swipe gestures
-│   ├── pages/
-│   │   ├── Index.tsx          # Main app shell with 12 views
-│   │   ├── Profile.tsx        # User profile page
-│   │   ├── NotFound.tsx       # 404 page
-│   │   └── auth/              # Auth pages
-│   │       ├── Login.tsx      # Login page
-│   │       ├── Signup.tsx     # Signup page
-│   │       └── ForgotPassword.tsx # Password reset page
-│   ├── components/
-│   │   ├── Navigation.tsx     # Sidebar with 11 nav items
-│   │   ├── ProtectedRoute.tsx # Auth guard wrapper
-│   │   ├── TodayView.tsx      # Daily dashboard
-│   │   ├── EisenhowerMatrix.tsx # 4-quadrant task board
-│   │   ├── TargetsView.tsx    # Time-based target planner
-│   │   ├── CalendarView.tsx   # Full calendar (day/month)
-│   │   ├── NotesView.tsx      # Notes list with search/filter
-│   │   ├── NoteEditor.tsx     # Rich text note editor
-│   │   ├── PomodoroTimer.tsx  # Focus timer launcher
-│   │   ├── HabitsView.tsx     # Habit tracker with streak
-│   │   ├── ChecklistView.tsx  # Daily routine checklists
-│   │   ├── ChatView.tsx       # AI chat interface
-│   │   ├── StatsView.tsx      # Analytics dashboard
-│   │   ├── AchievementsView.tsx # Achievement gallery
-│   │   ├── AddTaskDialog.tsx  # Task creation dialog
-│   │   ├── EditTaskDialog.tsx # Task edit dialog
-│   │   ├── AddTargetDialog.tsx # Target creation dialog
-│   │   ├── AddAchievementModal.tsx # Achievement creation modal
-│   │   ├── EditAchievementModal.tsx # Achievement edit modal
-│   │   ├── CleanupExpiredTargets.tsx # Expired target cleanup
-│   │   ├── auth/              # Auth form components
-│   │   │   ├── AuthLayout.tsx
-│   │   │   ├── LoginForm.tsx
-│   │   │   ├── SignupForm.tsx
-│   │   │   ├── ForgotPasswordForm.tsx
-│   │   │   ├── UserProfile.tsx
-│   │   │   └── GoogleSignInButton.tsx
-│   │   └── ui/                # 52 shadcn/ui components
-│   │       ├── animated-ai-chat.tsx  # Animated AI chat component
-│   │       ├── RichTextEditor.tsx    # ReactQuill wrapper
-│   │       ├── file-upload.tsx       # File upload component
-│   │       ├── sidebar.tsx           # Sidebar component
-│   │       └── ...                   # Standard shadcn components
-│   └── utils/
-│       ├── migrateTargets.ts   # Target-to-task migration engine
-│       ├── migrationSafeguards.ts # Duplicate prevention safeguards
-│       ├── taskCleanup.ts      # Task duplicate cleanup
-│       └── habitCleanup.ts     # Old habit data cleanup
-├── supabase/
-│   ├── config.toml            # Supabase project configuration
-│   └── migrations/            # Database migration files
-│       ├── 001_initial_auth_setup.sql
-│       ├── 002_calendar_events.sql
-│       └── 003_notes_table.sql
-├── Clock.html                 # Standalone pomodoro timer (root copy)
-├── restore_public_schema.sql  # Full database schema dump
-├── package.json
-├── vite.config.ts
-├── tsconfig.json
-├── tsconfig.app.json
-├── tailwind.config.ts
-├── components.json            # shadcn/ui configuration
-├── postcss.config.js
-└── eslint.config.js
+```sh
+# Run against your Supabase SQL editor or via CLI:
+1. 001_initial_auth_setup.sql    # Auth, profiles, tasks
+2. 002_calendar_events.sql       # Calendar events
+3. 003_notes_table.sql           # Notes
 ```
 
----
-
-## Design System
-
-### Theme
-- **Dark mode first** with full CSS variable-based theming
-- Light mode available via `.light` class toggle
-- Purple accent (`hsl(263, 70%, 50%)`) as the primary brand color
-- Glassmorphism cards with backdrop blur
-
-### Custom Animations (Tailwind)
-| Animation | Description |
-|---|---|
-| `glow` | Pulsing glow effect |
-| `shimmer` | Loading shimmer |
-| `float` | Floating motion |
-| `pulse-subtle` | Subtle pulse |
-| `countdown` | Countdown timer effect |
-| `meteor` | Meteor shower background |
-
-### CSS Utilities
-- `.glass` — Glassmorphism card with backdrop blur
-- `.glow` — Glow box shadow
-- `.gradient-border` — Gradient border pseudo-element
-- `.flip-card` — 3D flip card animation
-- `.auth-glass` — Enhanced glass effect for auth pages
-- `.gradient-text` — Animated gradient text
-- `.sidebar-scrollbar` — Custom purple glowing scrollbar
+Or deploy the complete schema: `restore_public_schema.sql`
 
 ---
 
-## AI Chat System (Vikram)
+<div align="center">
+  
+  # 🎮 COMMAND CENTER — SCRIPTS 🎮
 
-The AI assistant uses:
-- **Gemini API** via the OpenAI SDK (OpenAI-compatible endpoint)
-- **DuckDuckGo** for primary web search
-- **Programmable Search** and **programmatic-search** as fallback search providers
-- **Monte Carlo simulation** for task completion forecasting
-- **Anthropic SDK** as an additional AI provider
+</div>
 
-The chat interface supports:
-- Natural language queries about tasks, habits, calendar events
-- `/search` command for web lookups
-- `/clone` command for task duplication
-- `/improve` command for text enhancement
-- File upload analysis (images, PDFs, text)
-- Context-aware responses that reference your actual data
+| Command | Script | Action |
+|:--------|:-------|:-------|
+| `npm run dev` | `vite` | 🔥 Ignite dev server (HMR, port 8080) |
+| `npm run build` | `vite build` | 📦 Production bundle |
+| `npm run build:dev` | `vite build --mode development` | 🔧 Dev build |
+| `npm run preview` | `vite preview` | 👁️ Preview build output |
+| `npm run lint` | `eslint .` | 🔍 Lint all source |
 
 ---
 
-## Contributing
+<div align="center">
+  
+  # 🎨 THE DESIGN SYSTEM — DARK FORGED 🎨
 
-Contributions are welcome! Here's how to get started:
+</div>
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feat/your-feature`
-3. Make your changes
-4. Run `npm run lint` to ensure code quality
-5. Commit with a descriptive message
-6. Push and open a Pull Request
+### 🌑 **Theme Philosophy**
 
-### Code Style
-- TypeScript throughout (strict mode disabled)
-- React functional components with hooks
-- Tailwind classes for styling (inline or cn() utility)
-- shadcn/ui conventions for component patterns
-- Framer Motion for animations
-- No barrel exports — use explicit import paths
+```
+🎨 Primary:     hsl(263, 70%, 50%)  — Royal Purple
+🌊 Secondary:   hsl(240, 3.7%, 15.9%) — Deep Slate
+📜 Background:  hsl(240, 10%, 3.9%)  — Near Black
+✨ Accent:      hsl(263, 70%, 50%)  — Same Purple, mode-aware
+```
+
+- **Dark-first** with full CSS variable theming
+- **Light mode** via `.light` class toggle
+- **Glassmorphism** — `backdrop-filter: blur(20px)` on every card
+- **Purple neon glow** on active elements
+
+### 💫 **Custom Animations**
+
+| Name | Effect |
+|:-----|:-------|
+| `glow` | 🔮 Pulsing neon ring |
+| `shimmer` | ✨ Loading sweep |
+| `float` | 🪐 Suspended motion |
+| `pulse-subtle` | 💓 Gentle heartbeat |
+| `countdown` | ⏳ Timer urgency |
+| `meteor` | ☄️ Cosmic background |
+
+### 🧊 **CSS Utilities**
+
+| Utility | Function |
+|:--------|:---------|
+| `.glass` | Glassmorphism card |
+| `.glow` | Purple neon shadow |
+| `.gradient-border` | Gradient edge overlay |
+| `.flip-card` | 3D perspective transform |
+| `.auth-glass` | Enhanced auth backdrop |
+| `.gradient-text` | Animated text shimmer |
+| `.sidebar-scrollbar` | Custom purple scrollbar |
 
 ---
 
-## Roadmap
+<div align="center">
+  
+  # 🧑‍💻 CONTRIBUTING — BUILD WITH US 🧑‍💻
 
-- [ ] Unit and integration test suite
-- [ ] Mobile app (React Native)
-- [ ] Offline support with PWA
-- [ ] Collaborative task boards (real-time multiplayer)
-- [ ] Email notifications and reminders
-- [ ] Public API
-- [ ] Plugin system for custom extensions
-- [ ] Dark/light mode system toggle
-- [ ] Drag-and-drop task reordering
-- [ ] Recurring tasks
+</div>
+
+```mermaid
+flowchart LR
+    A[Fork Repo] --> B[Feature Branch]
+    B --> C[Make Changes]
+    C --> D[npm run lint]
+    D --> E[Commit]
+    E --> F[Push]
+    F --> G[Pull Request]
+    G --> H[✨ Merge!]
+```
+
+1. **Fork** the repository
+2. **Branch**: `git checkout -b feat/your-feature`
+3. **Code** with style:
+   - TypeScript functional components with hooks
+   - Tailwind classes (via `cn()` utility)
+   - shadcn/ui patterns
+   - Framer Motion for animations
+   - Explicit import paths (no barrel exports)
+4. **Lint**: `npm run lint`
+5. **Commit** with descriptive message
+6. **Push** and open a **Pull Request**
 
 ---
 
-## License
+<div align="center">
+  
+  # 🗺️ ROADMAP — THE FUTURE AWAITS 🗺️
 
-Open source under the [MIT License](LICENSE).
+</div>
+
+- [ ] ✅ **Test Suite** — Unit & integration tests
+- [ ] 📱 **Mobile App** — React Native client
+- [ ] 📡 **Offline Mode** — PWA with service workers
+- [ ] 👥 **Collaboration** — Real-time task boards
+- [ ] 📬 **Notifications** — Email & push reminders
+- [ ] 🌐 **Public API** — RESTful endpoints
+- [ ] 🔌 **Plugin System** — Custom extensions
+- [ ] 🌗 **Theme Toggle** — Dark/Light system
+- [ ] 🔄 **Drag & Drop** — Task reordering
+- [ ] 🔁 **Recurring Tasks** — Scheduled repetition
 
 ---
 
-*Built with React, Supabase, and TypeScript. Designed for focus, clarity, and getting things done.*
+<div align="center">
+  
+  # 📜 LICENSE 📜
+  
+  <br />
+  
+  <a href="https://github.com/Shivansh-hub495/flowdo/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/📜_Open_Source_under_MIT-8b5cf6?style=for-the-badge&labelColor=1e1b4b" alt="MIT" />
+  </a>
+  
+  <br /><br />
+  
+  <b>FlowDo</b> — Built with React, Supabase & TypeScript<br />
+  <i>Designed for focus, clarity, and getting things done.</i>
+  
+  <br /><br />
+  
+  <img src="https://img.shields.io/badge/⚡_SHIP_FASTER_⚡-8b5cf6?style=flat-square" />
+  
+</div>
