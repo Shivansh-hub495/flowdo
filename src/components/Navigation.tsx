@@ -34,7 +34,6 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ activeView, onVie
     { id: 'matrix', label: 'Matrix', icon: Grid3X3, description: 'Eisenhower quadrants' },
     { id: 'targets', label: 'Targets', icon: Crosshair, description: 'Future planning' },
     { id: 'calendar', label: 'Calendar', icon: CalendarDays, description: 'Schedule & events' },
-    { id: 'notes', label: 'Notes', icon: Brain, description: 'Mind flow' },
     { id: 'pomodoro', label: 'Focus', icon: Timer, description: 'Pomodoro sessions' },
     { id: 'habits', label: 'Habits', icon: Target, description: 'Habit tracking' },
     { id: 'checklist', label: 'Checklist', icon: ListChecks, description: 'Task checklists' },
